@@ -12,7 +12,10 @@
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write .",
 		"test:integration": "playwright test",
-		"test:unit": "vitest"
+		"test:unit": "vitest",
+		"generate": "dotenv -e .env.development.local -- drizzle-kit generate",
+    	"migrate": "dotenv -e .env.development.local -- drizzle-kit migrate",
+    	"studio": "dotenv -e .env.development.local -- drizzle-kit studio"
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.28.1",
