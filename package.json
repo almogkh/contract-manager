@@ -15,7 +15,8 @@
 		"test:unit": "vitest",
 		"generate": "dotenv -e .env.development.local -- drizzle-kit generate",
     	"migrate": "dotenv -e .env.development.local -- drizzle-kit migrate",
-    	"studio": "dotenv -e .env.development.local -- drizzle-kit studio"
+    	"studio": "dotenv -e .env.development.local -- drizzle-kit studio",
+		"push": "dotenv -e .env.development.local -- drizzle-kit push"
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.28.1",
