@@ -12,7 +12,7 @@ export async function getUserSession(sessionid: string) {
         firstName: schema.users.firstName,
         lastName: schema.users.lastName,
         role: schema.users.role,
-    }).from(schema.users).where(eq(session.userid, schema.users.id));
+    }).from(schema.users).rightJoin(session, eq(session.userid, schema.users.id));
     if (result.length === 0)
         return null;
     return result[0];
