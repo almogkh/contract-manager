@@ -2,7 +2,7 @@ import { getUserSession } from '$lib/db/db.server';
 import { redirect } from '@sveltejs/kit';
 
 export async function handle({ event, resolve }) {
-    if (event.url.pathname === '/login')
+    if (event.url.pathname === '/login' && !event.url.searchParams.has('/logout'))
         return await resolve(event);
 
 	const sessionid = event.cookies.get('sessionid');
@@ -15,7 +15,8 @@ export async function handle({ event, resolve }) {
         redirect(307, '/login');
     }
     
-    event.locals.user = user;
+    const {password, ...rest} = user;
+    event.locals.user = rest;
     const response = await resolve(event);
 	return response;
 }
