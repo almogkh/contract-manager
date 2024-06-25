@@ -16,12 +16,14 @@ export async function handle({ event, resolve }) {
         redirect(307, '/login');
     }
     
-    const route = pages.find((page) => event.url.pathname.startsWith(page.route));
-    if (!route)
-        error(404);
+    if (event.url.pathname !== '/') {
+        const route = pages.find((page) => event.url.pathname.startsWith(page.route));
+        if (!route)
+            error(404);
 
-    if (!route.roles.includes(user.role))
-        error(403);
+        if (!route.roles.includes(user.role))
+            error(403);
+    }
 
     const {password, ...rest} = user;
     event.locals.user = rest;

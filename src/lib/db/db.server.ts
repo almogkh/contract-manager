@@ -12,3 +12,8 @@ export async function getUserSession(sessionid: string) {
         return null;
     return result[0].users;
 }
+
+export async function getEmployeeList() {
+    const employees = await db.select().from(schema.users);
+    return employees;
+}

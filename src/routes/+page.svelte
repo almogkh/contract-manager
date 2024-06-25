@@ -4,7 +4,7 @@
 
 <div class="flex flex-col items-center space-y-4">
     {#each data.actions as action}
-        <a href={action.route} class="border p-2">
+        <a href={action.route} class="border p-2 bg-slate-400">
             {action.name}
         </a>
     {/each}

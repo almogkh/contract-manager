@@ -1,6 +1,7 @@
 import { integer, pgEnum, pgTable, serial, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 export const role = pgEnum('role', ['ceo', 'secretary', 'invmanager', 'teamlead']);
+export type RoleType = 'ceo' | 'secretary' | 'invmanager' | 'teamlead';
 
 export const users = pgTable('users', {
     id: serial('id').primaryKey(),
@@ -8,6 +9,7 @@ export const users = pgTable('users', {
     lastName: text('lastName').notNull(),
     role: role('role').notNull(),
     password: text('password').notNull(),
+    phoneNumber: text('phoneNumber').notNull(),
 });
 
 export const sessions = pgTable('sessions', {
