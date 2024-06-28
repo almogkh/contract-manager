@@ -2,17 +2,23 @@
     import { enhance } from "$app/forms";
 
     export let employee;
+    export let adding = false;
 
-    let readonly = true;
-    let firstName = employee.firstName;
-    let lastName = employee.lastName;
-    let role = employee.role;
-    let phoneNumber = employee.phoneNumber;
+    let readonly = employee !== null;
+    let firstName = employee?.firstName ?? '';
+    let lastName = employee?.lastName ?? '';
+    let role = employee?.role ?? 'secretary';
+    let phoneNumber = employee?.phoneNumber ?? '';
+    let userid = employee?.id ?? '';
     let password = "";
 </script>
 
-<form class="contents" method="post" action="?/editEmployee" on:submit={() => readonly = true} use:enhance={() => {
-    return ({update}) => update({reset: false});
+<form class="contents" method="post" on:submit={() => readonly = true} use:enhance={({action}) => {
+    return ({update}) => {
+        update({reset: false});
+        if (action.search === '?/addEmployee')
+            adding = false;
+    };
 }}>
     <input {readonly} name="firstName" type="text" bind:value={firstName}/>
     <input {readonly} name="lastName" type="text" bind:value={lastName}/>
@@ -28,21 +34,27 @@
     <input {readonly} name="password" type="text" bind:value={password}/>
     <input {readonly} name="phoneNumber" type="tel" bind:value={phoneNumber}/>
     <div>
-        <input type="hidden" name="id" value={employee.id}/>
+        <input type="hidden" name="id" bind:value={userid}/>
         <div class="flex gap-1">
             {#if !readonly}
-                <button name="submission" value="save" class="border rounded-md p-1 flex-1 bg-slate-200">Save</button>
+                <button formaction={adding ? "?/addEmployee" : "?/editEmployee"} class="border rounded-md p-1 flex-1 bg-slate-200">
+                    Save
+                </button>
                 <button type="button" class="border rounded-md p-1 flex-1 bg-slate-200" on:click={() => {
-                        readonly = true;
-                        firstName = employee.firstName;
-                        lastName = employee.lastName;
-                        role = employee.role;
-                        phoneNumber = employee.phoneNumber;
-                        password = "";
+                        if (employee) {
+                            readonly = true;
+                            firstName = employee.firstName;
+                            lastName = employee.lastName;
+                            role = employee.role;
+                            phoneNumber = employee.phoneNumber;
+                            password = "";
+                        } else {
+                            adding = false;
+                        }
                     }}>Cancel</button>
             {:else}
                 <button type="button" class="border rounded-md p-1 flex-1 bg-slate-200" on:click={() => {readonly = false}}>Edit</button>
-                <button name="submission" value="delete" class="border rounded-md p-1 flex-1 bg-red-600">Delete</button>
+                <button formaction="?/deleteEmployee" class="border rounded-md p-1 flex-1 bg-red-600">Delete</button>
             {/if}
         </div>
     </div>
