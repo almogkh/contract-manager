@@ -3,9 +3,9 @@ import { pages } from '$lib/server/permissions';
 import { error, redirect } from '@sveltejs/kit';
 
 export async function handle({ event, resolve }) {
-    if (event.url.pathname === '/login' && !event.url.searchParams.has('/logout'))
+    if (event.url.pathname === '/login')
         return await resolve(event);
-
+    
 	const sessionid = event.cookies.get('sessionid');
     if (!sessionid) {
         redirect(307, '/login');
