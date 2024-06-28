@@ -1,8 +1,8 @@
 import { db } from '$lib/db/db.server.js';
 import { sessions, users } from '$lib/db/schema.js';
+import { computeHash } from '$lib/server/utils.js';
 import { fail, redirect } from '@sveltejs/kit';
 import { and, eq, sql } from 'drizzle-orm';
-import { createHash } from 'node:crypto';
 
 export const actions = {
     login: async (event) => {
@@ -32,9 +32,7 @@ export const actions = {
 
         const user = userArr[0];
         // We store SHA-256 hashes of passwords in the DB, not the passwords themselves
-        const hash = createHash('sha256');
-        hash.update(password);
-        const passHash = hash.digest().toString('hex');
+        const passHash = computeHash(password);
         if (user.password !== passHash) {
             console.log(passHash, user.password);
             return fail(400, {incorrect: true});
