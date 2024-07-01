@@ -1,4 +1,4 @@
-import { integer, pgEnum, pgTable, primaryKey, serial, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { date, decimal, foreignKey, integer, pgEnum, pgTable, primaryKey, serial, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 export const role = pgEnum('role', ['ceo', 'secretary', 'invmanager', 'teamlead']);
 export type RoleType = typeof role.enumValues[number];
@@ -39,5 +39,63 @@ export const scheduleItems = pgTable('scheduleItems', {
 }, (table) => {
     return {
         pk: primaryKey({columns: [table.address, table.type, table.time]}),
+    };
+});
+
+export const contractStatus = pgEnum('contractStatus', ['new', 'signed', 'inprogress', 'complete']);
+export type ContractStatus = typeof contractStatus.enumValues[number];
+
+export const contracts = pgTable('contracts', {
+    id: serial('id').primaryKey(),
+    address: text('address').notNull(),
+    signingDate: date('signingDate').notNull(),
+    dueDate: date('dueDate').notNull(),
+    price: decimal('price').notNull(),
+    status: contractStatus('status').notNull(),
+});
+
+export const items = pgTable('items', {
+    id: serial('id').primaryKey(),
+    name: text('name').notNull(),
+    quantity: integer('quantity').notNull(),
+    price: decimal('price').notNull(),
+    width: decimal('width'),
+    height: decimal('height'),
+});
+
+export const apartmentStatus = pgEnum('apartmentStatus', ['pending', 'inprogress', 'complete']);
+export type ApartmentStatus = typeof apartmentStatus.enumValues[number];
+
+export const apartments = pgTable('apartments', {
+    contractid: integer('contractid').references(() => contracts.id),
+    floor: integer('floor').notNull(),
+    number: integer('number').notNull(),
+    windowWidth: decimal('windowWidth'),
+    windowHeight: decimal('windowHeight'),
+    doorWidth: decimal('doorWidth'),
+    doorHeight: decimal('doorHeight'),
+    status: apartmentStatus('status').notNull(),
+}, (table) => {
+    return {
+        pk: primaryKey({columns: [table.contractid, table.floor, table.number]}),
+    };
+});
+
+export const itemsInApartment = pgTable('itemsInApartment', {
+    itemid: integer('itemid'),
+    contractid: integer('contractid'),
+    floor: integer('floor'),
+    number: integer('number'),
+}, (table) => {
+    return {
+        pk: primaryKey({columns: [table.itemid, table.contractid, table.floor, table.number]}),
+        itemFk: foreignKey({
+            columns: [table.itemid],
+            foreignColumns: [items.id],
+        }),
+        apartmentFk: foreignKey({
+            columns: [table.contractid, table.floor, table.number],
+            foreignColumns: [apartments.contractid, apartments.floor, apartments.number],
+        }),
     };
 });
