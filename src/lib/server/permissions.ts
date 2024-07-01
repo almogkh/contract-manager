@@ -4,4 +4,9 @@ export const pages = [
         route: '/employees',
         roles: [],
     },
+    {
+        name: 'View teams',
+        route: '/teams',
+        roles: ['teamlead'],
+    },
 ];

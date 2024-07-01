@@ -37,3 +37,8 @@ export async function getEmployeeList() {
     const employees = await db.select().from(users);
     return employees;
 }
+
+export async function getEmployeeTeams(user: User) {
+    const teamList = await db.select().from(teams).where(eq(teams.lead, user.id));
+    return teamList;
+}
