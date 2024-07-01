@@ -20,10 +20,10 @@
             adding = false;
     };
 }}>
-    <input {readonly} name="firstName" type="text" bind:value={firstName}/>
-    <input {readonly} name="lastName" type="text" bind:value={lastName}/>
+    <input {readonly} required name="firstName" type="text" bind:value={firstName}/>
+    <input {readonly} required name="lastName" type="text" bind:value={lastName}/>
     <div class="contents">
-        <select disabled={readonly} bind:value={role}>
+        <select disabled={readonly} required bind:value={role}>
             <option value="ceo">CEO</option>
             <option value="secretary">Secretary</option>
             <option value="invmanager">Inventory manager</option>
@@ -31,8 +31,8 @@
         </select>
         <input type="hidden" name="role" bind:value={role}/>
     </div>
-    <input {readonly} name="password" type="text" bind:value={password}/>
-    <input {readonly} name="phoneNumber" type="tel" bind:value={phoneNumber}/>
+    <input {readonly} required={adding} name="password" type="text" bind:value={password}/>
+    <input {readonly} required name="phoneNumber" type="tel" bind:value={phoneNumber}/>
     <div>
         <input type="hidden" name="id" bind:value={userid}/>
         <div class="flex gap-1">
