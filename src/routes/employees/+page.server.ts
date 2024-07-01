@@ -1,8 +1,7 @@
-import { db, getEmployeeList } from '$lib/db/db.server.js';
-import { users, type RoleType } from '$lib/db/schema.js';
+import { addNewUser, deleteUser, getEmployeeList, updateUser } from '$lib/db/db.server.js';
+import { type RoleType, type User } from '$lib/db/schema.js';
 import { computeHash } from '$lib/server/utils.js';
 import { fail } from '@sveltejs/kit';
-import { eq } from 'drizzle-orm';
 
 export async function load(event) {
     const employees = await getEmployeeList();
@@ -26,7 +25,7 @@ export const actions = {
             return fail(400, {missing: true});
         
         const passwordHash = computeHash(password);
-        const userid = (await db.insert(users).values({firstName, lastName, phoneNumber, role, password: passwordHash}).returning())[0].id;
+        const userid = await addNewUser({firstName, lastName, phoneNumber, role, password: passwordHash});
         return {
             userid,
         };
@@ -46,13 +45,13 @@ export const actions = {
         if (!data.every((value) => value !== null && value !== ''))
             return fail(400, {missing: true});
 
-        const new_data: Partial<typeof users.$inferSelect> = {
+        const new_data: Partial<User> = {
             firstName, lastName, phoneNumber, role, 
         };
         if (password && password !== '')
             new_data.password = computeHash(password);
 
-        await db.update(users).set(new_data).where(eq(users.id, id));
+        await updateUser(id, new_data);
         return {
             success: true,
         };
@@ -66,7 +65,7 @@ export const actions = {
 
         const id = parseInt(userid);
 
-        await db.delete(users).where(eq(users.id, id));
+        await deleteUser(id);
         return {
             success: true,
         };

@@ -12,6 +12,8 @@ export const users = pgTable('users', {
     phoneNumber: text('phoneNumber').notNull(),
 });
 
+export type User = typeof users.$inferSelect;
+
 export const sessions = pgTable('sessions', {
     sessionid: uuid('sessionid').primaryKey().defaultRandom(),
     userid: integer('userid').references(() => users.id),
