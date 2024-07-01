@@ -21,7 +21,7 @@ export async function handle({ event, resolve }) {
         if (!route)
             error(404);
 
-        if (!route.roles.includes(user.role))
+        if (user.role !== 'ceo' && !route.roles.includes(user.role))
             error(403);
     }
 
