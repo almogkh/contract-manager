@@ -20,30 +20,6 @@ export const sessions = pgTable('sessions', {
     expirationTime: timestamp('expirationTime', {withTimezone: true}),
 });
 
-export const teams = pgTable('teams', {
-    id: serial('id').primaryKey(),
-    name: text('name').notNull(),
-    lead: integer('lead').references(() => users.id),
-    //contract: integer(contract).references(() => contracts.id);
-});
-
-export const workType = pgEnum('workType', ['installFrame', 'installContents']);
-export type WorkType = typeof workType.enumValues[number];
-
-export const scheduleStatus = pgEnum('scheduleStatus', ['pending', 'assigned', 'complete']);
-export type ScheduleStatus = typeof scheduleStatus.enumValues[number];
-
-export const scheduleItems = pgTable('scheduleItems', {
-    address: text('address'),
-    time: timestamp('time', {withTimezone: true}),
-    type: workType('type'),
-    status: scheduleStatus('status').default('pending').notNull(),
-}, (table) => {
-    return {
-        pk: primaryKey({columns: [table.address, table.type, table.time]}),
-    };
-});
-
 export const contractStatus = pgEnum('contractStatus', ['new', 'signed', 'inprogress', 'complete']);
 export type ContractStatus = typeof contractStatus.enumValues[number];
 
@@ -54,6 +30,30 @@ export const contracts = pgTable('contracts', {
     dueDate: date('dueDate').notNull(),
     price: decimal('price').notNull(),
     status: contractStatus('status').notNull(),
+});
+
+export const teams = pgTable('teams', {
+    id: serial('id').primaryKey(),
+    name: text('name').notNull(),
+    lead: integer('lead').notNull().references(() => users.id),
+    contract: integer('contract').references(() => contracts.id),
+});
+
+export const workType = pgEnum('workType', ['installFrame', 'installContents']);
+export type WorkType = typeof workType.enumValues[number];
+
+export const scheduleStatus = pgEnum('scheduleStatus', ['pending', 'assigned', 'complete']);
+export type ScheduleStatus = typeof scheduleStatus.enumValues[number];
+
+export const scheduleItems = pgTable('scheduleItems', {
+    address: text('address').notNull(),
+    time: timestamp('time', {withTimezone: true}).notNull(),
+    itemType: workType('itemtype').notNull(),
+    status: scheduleStatus('status').default('pending').notNull(),
+}, (table) => {
+    return {
+        pk: primaryKey({columns: [table.address, table.itemType, table.time], name: 'scheduleitems_pk'}),
+    };
 });
 
 export const items = pgTable('items', {
@@ -69,7 +69,7 @@ export const apartmentStatus = pgEnum('apartmentStatus', ['pending', 'inprogress
 export type ApartmentStatus = typeof apartmentStatus.enumValues[number];
 
 export const apartments = pgTable('apartments', {
-    contractid: integer('contractid').references(() => contracts.id),
+    contractid: integer('contractid').notNull().references(() => contracts.id),
     floor: integer('floor').notNull(),
     number: integer('number').notNull(),
     windowWidth: decimal('windowWidth'),
@@ -84,18 +84,20 @@ export const apartments = pgTable('apartments', {
 });
 
 export const itemsInApartment = pgTable('itemsInApartment', {
-    itemid: integer('itemid'),
-    contractid: integer('contractid'),
-    floor: integer('floor'),
-    number: integer('number'),
+    itemid: integer('itemid').notNull(),
+    contractid: integer('contractid').notNull(),
+    floor: integer('floor').notNull(),
+    number: integer('number').notNull(),
 }, (table) => {
     return {
-        pk: primaryKey({columns: [table.itemid, table.contractid, table.floor, table.number]}),
+        pk: primaryKey({columns: [table.itemid, table.contractid, table.floor, table.number], name: 'itemsinapartment_pk'}),
         itemFk: foreignKey({
+            name: 'itemsinapartment_fk_items',
             columns: [table.itemid],
             foreignColumns: [items.id],
         }),
         apartmentFk: foreignKey({
+            name: 'itemsinapartment_fk_apartments',
             columns: [table.contractid, table.floor, table.number],
             foreignColumns: [apartments.contractid, apartments.floor, apartments.number],
         }),
