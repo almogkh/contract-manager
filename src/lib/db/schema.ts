@@ -71,7 +71,7 @@ export const scheduleItems = pgTable('scheduleItems', {
     address: text('address').notNull(),
     time: timestamp('time', {withTimezone: true}).notNull(),
     itemType: workType('itemtype').notNull(),
-    teamid: integer('teamid').references(() => teams.id),
+    teamid: integer('teamid').notNull().references(() => teams.id),
     status: scheduleStatus('status').default('pending').notNull(),
     contractid: integer('contractid').notNull(),
     floor: integer('floor').notNull(),
