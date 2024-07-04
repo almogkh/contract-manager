@@ -3,7 +3,7 @@ import { drizzle as drizzleNode } from "drizzle-orm/node-postgres";
 import { sql as vercelSql } from "@vercel/postgres";
 import Pg from "pg";
 import * as schema from "./schema";
-import { users, sessions, type User, teams } from "./schema";
+import { users, sessions, type User, teams, scheduleItems } from "./schema";
 import { and, eq, lt, sql } from "drizzle-orm";
 import { NODE_DB, POSTGRES_URL } from "$env/static/private";
 
@@ -43,3 +43,15 @@ export async function getEmployeeTeams(user: User) {
     const teamList = await db.select().from(teams).where(eq(teams.lead, user.id));
     return teamList;
 }
+
+export async function getTeam(teamid: number) {
+    const team = (await db.select().from(teams).where(eq(teams.id, teamid)))[0];
+    return team;
+}
+
+export async function getTeamSchedule(teamid: number) {
+    const scheduleItemsArr = await db.select().from(scheduleItems).where(eq(scheduleItems.teamid, teamid));
+    return scheduleItemsArr;
+}
+
+//export async function updateScheduleItemStatus()
