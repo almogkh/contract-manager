@@ -18,7 +18,7 @@ export async function getEmployeeList() {
     return employees;
 }
 
-export async function getContract() {
+export async function getContractById(id: number) {
     const contract = await db.select().from(schema.contracts);
     return contract;
 }

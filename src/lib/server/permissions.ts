@@ -4,4 +4,9 @@ export const pages = [
         route: '/employees',
         roles: ['ceo'],
     },
+    {
+        name: 'Create new contract',
+        route: '/contracts',
+        roles: ['ceo', 'secretary'],
+    }
 ];

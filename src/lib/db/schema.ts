@@ -25,7 +25,7 @@ export const sessions = pgTable('sessions', {
 
 export const contracts = pgTable('contracts', {
     contractId: serial('contractId').primaryKey(),
-    userid: text('address').notNull(),
+    address: text('address').notNull(),
     signingDate: date('signingDate').notNull(),
     price: real('price').notNull(),
     dueDate: date('dueDate').notNull(),
