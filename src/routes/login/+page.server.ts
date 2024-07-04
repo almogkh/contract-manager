@@ -9,16 +9,17 @@ export const actions = {
         const formData = await event.request.formData();
         const username = formData.get('username') as string | null;
         const password = formData.get('password') as string | null;
+        const error = 'Username or password are incorrect!';
 
         if (!username || !password) {
-            return fail(400, {missing: true});
+            return fail(400, {missing: true, error});
         }
 
         // Make username case-insensitive
         const arr = username.toLowerCase().split('.');
         // Username is always firsName.lastName
         if (arr.length !== 2) {
-            return fail(400, {incorrect: true});
+            return fail(400, {incorrect: true, error});
         }
 
         const [firstName, lastName] = arr;
@@ -27,7 +28,7 @@ export const actions = {
                                 eq(sql`lower(${users.firstName})`, firstName),
                                 eq(sql`lower(${users.lastName})`, lastName)));
         if (userArr.length === 0) {
-            return fail(400, {incorrect: true});
+            return fail(400, {incorrect: true, error});
         }
 
         const user = userArr[0];
@@ -35,7 +36,7 @@ export const actions = {
         const passHash = computeHash(password);
         if (user.password !== passHash) {
             console.log(passHash, user.password);
-            return fail(400, {incorrect: true});
+            return fail(400, {incorrect: true, error});
         }
 
         const expirationTime = new Date();
