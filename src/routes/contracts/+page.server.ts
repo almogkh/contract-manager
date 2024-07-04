@@ -1,4 +1,4 @@
-import { db, getContractById } from '$lib//db/db.server.js';
+import { db /*,getContractById*/ } from '$lib//db/db.server.js';
 import { contracts, type StatusType, type ContractType } from '$lib/db/schema.js';
 import { fail } from '@sveltejs/kit';
 
@@ -25,7 +25,8 @@ export const actions = {
 
         if (!data.every((value) => value !== null && value !== '')) 
           return fail(400, { missing: true });
-        
+
+
         try {
            await db.insert(contracts).values({
             address,

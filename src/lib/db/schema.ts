@@ -1,11 +1,11 @@
 import { integer, real, pgEnum, pgTable, serial, text, timestamp, uuid, date } from "drizzle-orm/pg-core";
 
 export const role = pgEnum('role', ['ceo', 'secretary', 'invmanager', 'teamlead']);
-export const contractStatus = pgEnum('contractStatus', ['pending', 'processing', 'complete']);
+export const contractStatus = pgEnum('contractStatus', ['pending', 'processing', 'completed']);
 export const contractType = pgEnum('contractType', ['newContract','repairedContract']);
 
 export type RoleType = 'ceo' | 'secretary' | 'invmanager' | 'teamlead';
-export type StatusType = 'pending' | 'processing' | 'complete';
+export type StatusType = 'pending' | 'processing' | 'completed';
 export type ContractType = 'newContract' | 'repairedContract';
 
 export const users = pgTable('users', {
