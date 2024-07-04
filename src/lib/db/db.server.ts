@@ -5,10 +5,11 @@ import Pg from "pg";
 import * as schema from "./schema";
 import { users, sessions, type User, teams } from "./schema";
 import { and, eq, lt, sql } from "drizzle-orm";
+import { NODE_DB, POSTGRES_URL } from "$env/static/private";
 
 const { Pool } = Pg;
-export const db = process.env.NODE_DB
-                    ? drizzleNode(new Pool({connectionString: process.env.POSTGRES_URL}))
+export const db = NODE_DB
+                    ? drizzleNode(new Pool({connectionString: POSTGRES_URL}))
                     : drizzleVercel(vercelSql, {schema});
 
 export async function getUserSession(sessionid: string) {
