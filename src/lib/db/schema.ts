@@ -20,7 +20,9 @@ export const sessions = pgTable('sessions', {
     expirationTime: timestamp('expirationTime', {withTimezone: true}),
 });
 
-export const contractStatus = pgEnum('contractStatus', ['new', 'signed', 'inprogress', 'complete']);
+export const contractType = pgEnum('contractType', ['newContract','repairedContract']);
+export type ContractType = typeof contractType.enumValues[number];
+export const contractStatus = pgEnum('contractStatus', ['new', 'inprogress', 'complete']);
 export type ContractStatus = typeof contractStatus.enumValues[number];
 
 export const contracts = pgTable('contracts', {
@@ -29,7 +31,8 @@ export const contracts = pgTable('contracts', {
     signingDate: date('signingDate').notNull(),
     dueDate: date('dueDate').notNull(),
     price: real('price').notNull(),
-    status: contractStatus('status').notNull(),
+    status: contractStatus('status').notNull().default('new'),
+    contractType: contractType('type').notNull().default('newContract'),
 });
 
 export const teams = pgTable('teams', {
