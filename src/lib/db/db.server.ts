@@ -57,6 +57,14 @@ export async function createTeam(name: string, lead: SafeUser) {
     });
 }
 
+export async function editTeam(id: number, name: string) {
+    await db.update(teams).set({name}).where(eq(teams.id, id));
+}
+
+export async function deleteTeam(id: number) {
+    await db.delete(teams).where(eq(teams.id, id));
+}
+
 export async function getTeamSchedule(teamid: number) {
     const rows = await db.select().from(scheduleItems).where(and(eq(scheduleItems.teamid, teamid), eq(scheduleItems.status, 'pending')))
                     .innerJoin(apartmentInScheduleItem, eq(apartmentInScheduleItem.itemid, scheduleItems.id))

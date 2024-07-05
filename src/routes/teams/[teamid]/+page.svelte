@@ -2,11 +2,24 @@
 	import { enhance } from "$app/forms";
 
     export let data;
+    export let form;
     const user = data.user!;
 </script>
 
+<span class="text-red-600 text-wrap w-4/6 mb-2 min-h-12">{form?.errorMessage ?? ''}</span>
+
 <div class="flex flex-col gap-y-2 items-start">
-    <span>Team name: {data.team.name}</span>
+    <form method="post" use:enhance={() => {
+        return ({update}) => update({reset: false});
+    }}>
+        <div class="flex gap-2">
+            <span>Team name:</span>
+            <input type="text" name="teamName" value={data.team.name} required />
+            <input type="hidden" name="id" value={data.team.id} />
+            <button class="border border-black bg-slate-500 text-white p-1" formaction="?/editTeam">Update team</button>
+            <button class="border border-black rounded-md bg-red-600 text-white p-1" formaction="?/deleteTeam">Delete</button>
+        </div>
+    </form>
     <span>Team leader: {user.firstName} {user.lastName}</span>
     <h1 class="text-lg border-t border-black w-full underline">Team Schedule:</h1>
     {#each data.schedule as scheduleItem}
