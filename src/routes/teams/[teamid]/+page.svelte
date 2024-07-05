@@ -2,11 +2,12 @@
 	import { enhance } from "$app/forms";
 
     export let data;
+    const user = data.user!;
 </script>
 
 <div class="flex flex-col gap-y-2 items-start">
     <span>Team name: {data.team.name}</span>
-    <span>Team leader: {data.user.firstName} {data.user.lastName}</span>
+    <span>Team leader: {user.firstName} {user.lastName}</span>
     <h1 class="text-lg border-t border-black w-full underline">Team Schedule:</h1>
     {#each data.schedule as scheduleItem}
         <span>Address: {scheduleItem.item.address}</span>

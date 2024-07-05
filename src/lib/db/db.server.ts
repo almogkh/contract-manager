@@ -4,7 +4,7 @@ import { sql as vercelSql } from "@vercel/postgres";
 import Pg from "pg";
 import * as schema from "./schema";
 import { items, itemsInApartment, apartmentInScheduleItem, apartments, users,
-    sessions, type Item, type User, type Apartment, type ScheduleItem, teams, scheduleItems, contracts } from "./schema";
+    sessions, type SafeUser, type Item, type User, type Apartment, type ScheduleItem, teams, scheduleItems, contracts } from "./schema";
 import { and, eq, lt, sql } from "drizzle-orm";
 import { NODE_DB, POSTGRES_URL } from "$env/static/private";
 
@@ -48,6 +48,13 @@ export async function getEmployeeTeams(user: User) {
 export async function getTeam(teamid: number) {
     const team = (await db.select().from(teams).where(eq(teams.id, teamid)))[0];
     return team;
+}
+
+export async function createTeam(name: string, lead: SafeUser) {
+    await db.insert(teams).values({
+        name,
+        lead: lead.id,
+    });
 }
 
 export async function getTeamSchedule(teamid: number) {

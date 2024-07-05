@@ -13,6 +13,7 @@ export const users = pgTable('users', {
 });
 
 export type User = typeof users.$inferSelect;
+export type SafeUser = Omit<typeof users.$inferSelect, 'password'>;
 
 export const sessions = pgTable('sessions', {
     sessionid: uuid('sessionid').primaryKey().defaultRandom(),
