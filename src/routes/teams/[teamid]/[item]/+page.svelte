@@ -7,7 +7,7 @@
 </script>
 
 {#each schedItem.apartments as apartment}
-<div class="border border-black p-2 flex flex-col gap-y-4">
+<div class="border border-black p-2 flex flex-col gap-y-4 w-full">
     <span>Floor: {apartment.floor}</span>
     <span>Number: {apartment.number}</span>
     <span>Status: {apartment.status === 'pending' ? 'Pending': 'Complete'}</span>
@@ -27,11 +27,12 @@
         <span>Quantity</span>
         <span>Width</span>
         <span>Height</span>
+        <span class="border-t border-black col-span-4 w-full"/>
     {#each apartment.items as item}
-        <span>{item.name}</span>
-        <span>{item.quantity}</span>
-        <span>{item.width ? item.width : ''}</span>
-        <span>{item.height ? item.height : ''}</span>
+        <span class="text-xs sm:text-base">{item.name}</span>
+        <span class="text-xs sm:text-base">{item.quantity}</span>
+        <span class="text-xs sm:text-base">{item.width ? item.width : ''}</span>
+        <span class="text-xs sm:text-base">{item.height ? item.height : ''}</span>
     {/each}
     </div>
 
