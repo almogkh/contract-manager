@@ -3,7 +3,8 @@ import { drizzle as drizzleNode } from "drizzle-orm/node-postgres";
 import { sql as vercelSql } from "@vercel/postgres";
 import Pg from "pg";
 import * as schema from "./schema";
-import { users, sessions, type User, teams, scheduleItems, contracts } from "./schema";
+import { items, itemsInApartment, apartmentInScheduleItem, apartments, users,
+    sessions, type Item, type User, type Apartment, type ScheduleItem, teams, scheduleItems, contracts } from "./schema";
 import { and, eq, lt, sql } from "drizzle-orm";
 import { NODE_DB, POSTGRES_URL } from "$env/static/private";
 
@@ -50,8 +51,54 @@ export async function getTeam(teamid: number) {
 }
 
 export async function getTeamSchedule(teamid: number) {
-    const scheduleItemsArr = await db.select().from(scheduleItems).where(eq(scheduleItems.teamid, teamid));
-    return scheduleItemsArr;
+    const rows = await db.select().from(scheduleItems).where(and(eq(scheduleItems.teamid, teamid), eq(scheduleItems.status, 'pending')))
+                    .innerJoin(apartmentInScheduleItem, eq(apartmentInScheduleItem.itemid, scheduleItems.id))
+                    .innerJoin(apartments, and(
+                            eq(apartments.contractid, apartmentInScheduleItem.contractid),
+                            eq(apartments.floor, apartmentInScheduleItem.floor),
+                            eq(apartments.number, apartmentInScheduleItem.number)
+                    ))
+                    .innerJoin(itemsInApartment, and(
+                            eq(apartments.contractid, itemsInApartment.contractid),
+                            eq(apartments.floor, itemsInApartment.floor),
+                            eq(apartments.number, itemsInApartment.number)
+                    ))
+                    .innerJoin(items, eq(items.id, itemsInApartment.itemid));
+
+    type ApartmentWithItems = (Apartment & {items: Item[]});
+    const result = rows.reduce<Record<number, {item: ScheduleItem, apartments: ApartmentWithItems[]}>>((acc, row) => {
+        const item = row.scheduleItems;
+        const apartment = row.apartments;
+
+        if (!acc[item.id]) {
+            acc[item.id] = {item, apartments: []};
+        }
+
+        let apt = acc[item.id].apartments.find((value) => value.floor === apartment.floor && value.number === apartment.number);
+        if (!apt) {
+            apt = {...apartment, items: []};
+            acc[item.id].apartments.push(apt);
+        }
+
+        row.items.quantity = row.itemsInApartment.quantity;
+        apt.items.push(row.items);
+
+        return acc;
+    }, {});
+
+    return result;
+}
+
+export async function markSchedItemComplete(id: number) {
+    await db.update(scheduleItems).set({status: 'complete'}).where(eq(scheduleItems.id, id));
+}
+
+export async function markApartmentComplete(contractid: number, floor: number, number: number) {
+    await db.update(apartments).set({status: 'complete'}).where(and(
+        eq(apartments.contractid, contractid),
+        eq(apartments.floor, floor),
+        eq(apartments.number, number)
+    ));
 }
 
 export async function getContractById(id: number) {
