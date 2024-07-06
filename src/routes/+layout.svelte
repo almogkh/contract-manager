@@ -1,6 +1,8 @@
 <script>
     import { enhance } from "$app/forms";
-import "../app.css";
+	import Popup from "$lib/Popup.svelte";
+	import { displayPopup } from "$lib/popups";
+    import "../app.css";
 
     export let data;
 </script>
@@ -16,4 +18,7 @@ import "../app.css";
         <slot />
     </main>
 
+    {#if $displayPopup.display}
+        <Popup message={$displayPopup.message} type={$displayPopup.type}/>
+    {/if}
 </div>
