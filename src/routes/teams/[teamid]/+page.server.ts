@@ -17,8 +17,9 @@ export const actions = {
         const formData = await event.request.formData();
         const id = parseInt(formData.get('id') as string);
         const name = formData.get('teamName') as string;
+        const installers = formData.getAll('installer') as string[];
 
-        await editTeam(id, name);
+        await editTeam(id, name, installers);
 
         return {
             success: true,

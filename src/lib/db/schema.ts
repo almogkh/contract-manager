@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import { date, foreignKey, integer, pgEnum, pgTable, primaryKey, real, serial, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 export const role = pgEnum('role', ['ceo', 'secretary', 'invmanager', 'teamlead']);
@@ -41,6 +42,7 @@ export const teams = pgTable('teams', {
     name: text('name').notNull(),
     lead: integer('lead').notNull().references(() => users.id),
     contract: integer('contract').references(() => contracts.id),
+    installers: text('installers').array().notNull().default(sql`'{}'::text[]`),
 });
 
 export const apartmentStatus = pgEnum('apartmentStatus', ['pending', 'complete']);

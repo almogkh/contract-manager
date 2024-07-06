@@ -50,15 +50,16 @@ export async function getTeam(teamid: number) {
     return team;
 }
 
-export async function createTeam(name: string, lead: SafeUser) {
+export async function createTeam(name: string, lead: SafeUser, installers: string[]) {
     await db.insert(teams).values({
         name,
         lead: lead.id,
+        installers
     });
 }
 
-export async function editTeam(id: number, name: string) {
-    await db.update(teams).set({name}).where(eq(teams.id, id));
+export async function editTeam(id: number, name: string, installers: string[]) {
+    await db.update(teams).set({name, installers}).where(eq(teams.id, id));
 }
 
 export async function deleteTeam(id: number) {
