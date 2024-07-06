@@ -1,5 +1,5 @@
 import { deleteTeam, editTeam, markSchedItemComplete } from '$lib/db/db.server.js';
-import { redirect } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 
 export const actions = {
     markComplete: async (event) => {
@@ -34,9 +34,9 @@ export const actions = {
             await deleteTeam(id);
         } catch (error: any) {
             if (error.code === '23503') {
-                return {
+                return fail(400, {
                     errorMessage: 'Can\'t delete team because it is still assigned to some work.\nPlease request that the team is removed from all responsibility before trying to delete the team.',
-                };
+                });
             }
         }
 
