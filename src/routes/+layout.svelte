@@ -5,14 +5,14 @@ import "../app.css";
     export let data;
 </script>
 
-<div class="bg-slate-300 min-h-screen flex flex-col items-center">
+<div class="bg-slate-300 min-h-screen flex flex-col items-center pb-8">
     <header class="flex justify-end w-full p-2 border-b mb-4">
         <form method="post" action="/login?/logout" use:enhance>
             <button class="{data.user ? "" : "invisible"} p-1 mr-2 border rounded-md bg-red-600 text-white">Logout</button>
         </form>
     </header>
 
-    <main class="flex flex-col items-center px-2">
+    <main class="flex flex-col items-center px-2 max-w-full">
         <slot />
     </main>
 
