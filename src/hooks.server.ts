@@ -8,12 +8,12 @@ export async function handle({ event, resolve }) {
     
 	const sessionid = event.cookies.get('sessionid');
     if (!sessionid) {
-        redirect(307, '/login');
+        redirect(303, '/login');
     }
 
     const user = await getUserSession(sessionid);
     if (!user) {
-        redirect(307, '/login');
+        redirect(303, '/login');
     }
     
     if (event.url.pathname !== '/') {
