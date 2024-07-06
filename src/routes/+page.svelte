@@ -1,5 +1,5 @@
 <script>
-	export let data;
+    export let data;
 </script>
 
 <div class="flex flex-col items-center space-y-4">

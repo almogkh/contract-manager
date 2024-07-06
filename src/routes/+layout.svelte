@@ -1,7 +1,7 @@
 <script>
     import { enhance } from "$app/forms";
-	import Popup from "$lib/Popup.svelte";
-	import { displayPopup } from "$lib/popups";
+    import Popup from "$lib/Popup.svelte";
+    import { displayPopup } from "$lib/popups";
     import "../app.css";
 
     export let data;

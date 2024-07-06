@@ -6,7 +6,7 @@ export async function handle({ event, resolve }) {
     if (event.url.pathname === '/login')
         return await resolve(event);
     
-	const sessionid = event.cookies.get('sessionid');
+    const sessionid = event.cookies.get('sessionid');
     if (!sessionid) {
         redirect(303, '/login');
     }
@@ -28,5 +28,5 @@ export async function handle({ event, resolve }) {
     const {password, ...rest} = user;
     event.locals.user = rest;
     const response = await resolve(event);
-	return response;
+    return response;
 }

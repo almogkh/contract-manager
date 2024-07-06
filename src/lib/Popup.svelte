@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { displayPopup } from "./popups";
+    import { displayPopup } from "./popups";
 
     export let message: string;
     export let type: string;

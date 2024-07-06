@@ -1,5 +1,5 @@
 <script lang="ts">
-	import ItemEditor from "./ItemEditor.svelte";
+    import ItemEditor from "./ItemEditor.svelte";
 
     export let data;
 

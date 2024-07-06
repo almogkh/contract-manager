@@ -1,5 +1,5 @@
 <script>
-	import EmployeeEditor from "./EmployeeEditor.svelte";
+    import EmployeeEditor from "./EmployeeEditor.svelte";
 
     export let data;
 

@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { enhance } from "$app/forms";
-	import type { ItemProp } from "$lib/db/schema";
-	import { errorPopup } from "$lib/popups";
+    import { enhance } from "$app/forms";
+    import type { ItemProp } from "$lib/db/schema";
+    import { errorPopup } from "$lib/popups";
 
     export let item: ItemProp = null;
     export let adding: boolean = false;
