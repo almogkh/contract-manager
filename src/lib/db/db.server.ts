@@ -3,9 +3,9 @@ import { drizzle as drizzleNode } from "drizzle-orm/node-postgres";
 import { sql as vercelSql } from "@vercel/postgres";
 import Pg from "pg";
 import * as schema from "./schema";
-import { items, itemsInApartment, apartmentInScheduleItem, apartments, users,
-    sessions, type SafeUser, type Item, type User, type Apartment, type ScheduleItem, teams, scheduleItems, contracts } from "./schema";
-import { and, eq, lt, sql } from "drizzle-orm";
+import { shortages, items, itemsInApartment, apartmentInScheduleItem, apartments, users,
+    sessions, type ShortageStatus, type SafeUser, type Item, type User, type Apartment, type ScheduleItem, teams, scheduleItems, contracts } from "./schema";
+import { and, eq, getTableColumns, lt, ne, sql } from "drizzle-orm";
 import { NODE_DB, POSTGRES_URL } from "$env/static/private";
 
 const { Pool } = Pg;
@@ -120,4 +120,35 @@ export async function markApartmentComplete(contractid: number, floor: number, n
 export async function getContractById(id: number) {
     const contract = (await db.select().from(contracts).where(eq(contracts.id, id)))[0];
     return contract;
+}
+
+export async function getShortages() {
+    const shortagesColumns = getTableColumns(shortages);
+    const itemsColumns = getTableColumns(items);
+
+    const res = await db.select({
+                            ...shortagesColumns,
+                            item: itemsColumns,
+                        }).from(shortages).where(ne(shortages.status, 'complete'))
+                        .innerJoin(items, eq(shortages.itemid, items.id));
+    return res;
+}
+
+export async function updateShortage(id: number, status: ShortageStatus) {
+    await db.update(shortages).set({status}).where(eq(shortages.id, id));
+}
+
+export async function getItems() {
+    const itemsCols = getTableColumns(items);
+    const shortagesCols = getTableColumns(shortages);
+    const selectCols = {...itemsCols, shortages: shortagesCols};
+
+    const res = await db.select(selectCols).from(items)
+                    .leftJoin(shortages, eq(shortages.itemid, items.id));
+    
+    return res;
+}
+
+export async function deleteItem(id: number) {
+    await db.delete(items).where(eq(items.id, id));
 }

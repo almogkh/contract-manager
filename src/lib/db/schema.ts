@@ -42,7 +42,7 @@ export const teams = pgTable('teams', {
     name: text('name').notNull(),
     lead: integer('lead').notNull().references(() => users.id),
     contract: integer('contract').references(() => contracts.id),
-    installers: text('installers').array().notNull().default(sql`'{}'::text[]`),
+    installers: text('installers').array().notNull().default(sql`'{}'`),
 });
 
 export const apartmentStatus = pgEnum('apartmentStatus', ['pending', 'complete']);
@@ -133,3 +133,16 @@ export const itemsInApartment = pgTable('itemsInApartment', {
         }),
     };
 });
+
+export const shortageStatus = pgEnum('shortageStatus', ['pending', 'ordered', 'complete']);
+export type ShortageStatus = typeof shortageStatus.enumValues[number];
+
+export const shortages = pgTable('shortages', {
+    id: serial('id').primaryKey(),
+    itemid: integer('itemid').notNull().references(() => items.id),
+    amount: integer('amount').notNull(),
+    dueDate: date('dueDate').notNull(),
+    status: shortageStatus('status').notNull(),
+});
+
+export type ItemProp = typeof items.$inferSelect & {shortages: typeof shortages.$inferSelect | null} | null;

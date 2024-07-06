@@ -1,4 +1,6 @@
-export const pages = [
+import type { RoleType } from "$lib/db/schema";
+
+export const pages: {name: string, route: string, roles: RoleType[]}[] = [
     {
         name: 'View and edit employee data',
         route: '/employees',
@@ -13,5 +15,15 @@ export const pages = [
         name: 'Create new contract',
         route: '/contracts',
         roles: ['secretary'],
-    }
+    },
+    {
+        name: 'View and handle shortages',
+        route: '/shortages',
+        roles: ['invmanager'],
+    },
+    { 
+        name: 'View and update items',
+        route: '/items',
+        roles: ['invmanager'],
+    },
 ];
