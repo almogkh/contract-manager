@@ -7,15 +7,14 @@
 </script>
 
 <div class="flex flex-col gap-y-6 w-10/12 items-center">
-<div class="grid grid-cols-7 gap-x-12 gap-y-2 justify-items-center auto-cols-max">
-    <span>ID</span>
+<div class="grid grid-cols-6 gap-x-12 gap-y-2 justify-items-center">
     <span>Name</span>
     <span>Quantity</span>
     <span>Price</span>
     <span>Width</span>
     <span>Height</span>
     <span>Actions</span>
-    <span class="border-t border-black w-full col-span-7"/>
+    <span class="border-t border-black w-full col-span-6"/>
     {#each data.items as item}
         <ItemEditor item={item}/>
     {/each}

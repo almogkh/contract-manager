@@ -35,12 +35,11 @@
         {:else}
             <span/>
         {/if}
-        <span class="justify-self-center">{item?.id ?? ''}</span>
+        <input type="text" class="justify-self-center" readonly={!editing} name="name" required bind:value={name}/>
         <input type="hidden" name="id" value={item?.id ?? ''}/>
     </div>
-    <input type="text" readonly={!editing} name="name" required bind:value={name}/>
-    <input type="text" readonly={!editing} name="price" required bind:value={price}/>
     <input type="text" readonly={!editing} name="quantity" required bind:value={quantity}/>
+    <input type="text" readonly={!editing} name="price" required bind:value={price}/>
     <input type="text" readonly={!editing} name="width" bind:value={width}/>
     <input type="text" readonly={!editing} name="height" bind:value={height}/>
     <div class="flex gap-x-2 justify-items-center w-full">
