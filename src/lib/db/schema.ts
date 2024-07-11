@@ -34,7 +34,7 @@ export const contracts = pgTable('contracts', {
     dueDate: date('dueDate').notNull(),
     price: real('price').notNull(),
     status: contractStatus('status').notNull().default('new'),
-    contractType: contractType('type').notNull().default('newContract'),
+    type: contractType('type').notNull().default('newContract'),
 });
 
 export const teams = pgTable('teams', {

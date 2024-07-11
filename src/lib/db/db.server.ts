@@ -40,7 +40,7 @@ export async function getEmployeeList() {
     return employees;
 }
 
-export async function getEmployeeTeams(user: User) {
+export async function getEmployeeTeams(user: SafeUser) {
     const teamList = await db.select().from(teams).where(eq(teams.lead, user.id));
     return teamList;
 }
