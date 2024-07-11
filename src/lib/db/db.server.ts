@@ -5,7 +5,7 @@ import Pg from "pg";
 import * as schema from "./schema";
 import { shortages, items, itemsInApartment, apartmentInScheduleItem, apartments, users,
     sessions, type Shortage, type ShortageStatus, type SafeUser, type Item, type User, type Apartment, type ScheduleItem,
-    teams, scheduleItems, contracts } from "./schema";
+    type NewItem, teams, scheduleItems, contracts } from "./schema";
 import { and, eq, getTableColumns, lt, ne, sql, asc } from "drizzle-orm";
 import { NODE_DB, POSTGRES_URL } from "$env/static/private";
 
@@ -163,6 +163,10 @@ export async function getItems() {
     }, {});
     
     return Object.values(res);
+}
+
+export async function addItem(item: NewItem) {
+    await db.insert(items).values(item);
 }
 
 export async function updateItem(item: Item) {
