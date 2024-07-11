@@ -13,10 +13,33 @@
             </svg>
         {/if}
         <span>{message}</span>
-        <button type="button" class="border border-black rounded-md py-1 px-8 bg-slate-400" on:click={() => {
-            $displayPopup.display = false;
-        }}>
-            OK
-        </button>
+
+        {#if type !== 'confirm'}
+            <button type="button" class="border border-black rounded-md py-1 px-8 bg-slate-400" on:click={() => {
+                $displayPopup.display = false;
+            }}>
+                OK
+            </button>
+
+        {:else}
+            <div class="flex justify-evenly space-x-6">
+                <button type="button" class="border border-black rounded-md py-1 px-8 bg-slate-400" on:click={() => {
+                    if ($displayPopup.cb) {
+                        $displayPopup.cb(true);
+                    }
+                    $displayPopup.display = false;
+                }}>
+                    Yes
+                </button>
+                <button type="button" class="border border-black rounded-md py-1 px-8 bg-slate-400" on:click={() => {
+                    if ($displayPopup.cb) {
+                        $displayPopup.cb(false);
+                    }
+                    $displayPopup.display = false;
+                }}>
+                    No
+                </button>
+            </div>
+        {/if}
     </div>
 </div>
