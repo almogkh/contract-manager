@@ -6,7 +6,7 @@ import * as schema from "./schema";
 import { shortages, items, itemsInApartment, apartmentInScheduleItem, apartments, users,
     sessions, type Shortage, type ShortageStatus, type SafeUser, type Item, type User, type Apartment, type ScheduleItem,
     teams, scheduleItems, contracts } from "./schema";
-import { and, eq, getTableColumns, lt, ne, sql } from "drizzle-orm";
+import { and, eq, getTableColumns, lt, ne, sql, asc } from "drizzle-orm";
 import { NODE_DB, POSTGRES_URL } from "$env/static/private";
 
 const { Pool } = Pg;
@@ -69,6 +69,7 @@ export async function deleteTeam(id: number) {
 
 export async function getTeamSchedule(teamid: number) {
     const rows = await db.select().from(scheduleItems).where(and(eq(scheduleItems.teamid, teamid), eq(scheduleItems.status, 'pending')))
+                    .orderBy(asc(scheduleItems.time))
                     .innerJoin(apartmentInScheduleItem, eq(apartmentInScheduleItem.itemid, scheduleItems.id))
                     .innerJoin(apartments, and(
                             eq(apartments.contractid, apartmentInScheduleItem.contractid),
@@ -103,7 +104,7 @@ export async function getTeamSchedule(teamid: number) {
         return acc;
     }, {});
 
-    return result;
+    return Object.values(result);
 }
 
 export async function markSchedItemComplete(id: number) {
