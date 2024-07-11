@@ -1,4 +1,5 @@
 import { markApartmentComplete } from '$lib/db/db.server.js';
+import { redirect } from '@sveltejs/kit';
 
 export const actions = {
     markComplete: async (event) => {
@@ -9,8 +10,6 @@ export const actions = {
 
         await markApartmentComplete(contractid, floor, number);
 
-        return {
-            success: true,
-        };
+        redirect(303, `/teams/${event.params.teamid}`);
     }
 }
