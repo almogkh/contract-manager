@@ -4,7 +4,8 @@ import { sql as vercelSql } from "@vercel/postgres";
 import Pg from "pg";
 import * as schema from "./schema";
 import { shortages, items, itemsInApartment, apartmentInScheduleItem, apartments, users,
-    sessions, type ShortageStatus, type SafeUser, type Item, type User, type Apartment, type ScheduleItem, teams, scheduleItems, contracts } from "./schema";
+    sessions, type Shortage, type ShortageStatus, type SafeUser, type Item, type User, type Apartment, type ScheduleItem,
+    teams, scheduleItems, contracts } from "./schema";
 import { and, eq, getTableColumns, lt, ne, sql } from "drizzle-orm";
 import { NODE_DB, POSTGRES_URL } from "$env/static/private";
 
@@ -141,12 +142,31 @@ export async function updateShortage(id: number, status: ShortageStatus) {
 export async function getItems() {
     const itemsCols = getTableColumns(items);
     const shortagesCols = getTableColumns(shortages);
-    const selectCols = {...itemsCols, shortages: shortagesCols};
+    const selectCols = {...itemsCols, shortage: shortagesCols};
 
-    const res = await db.select(selectCols).from(items)
+    const rows = await db.select(selectCols).from(items)
                     .leftJoin(shortages, eq(shortages.itemid, items.id));
     
-    return res;
+    const res = rows.reduce<Record<number, Item & {shortages: Shortage[]}>>((acc, row) => {
+        const {shortage, ...item} = row;
+
+        if (!acc[item.id]) {
+            acc[item.id] = {...item, shortages: []};
+        }
+
+        if (shortage) {
+            acc[item.id].shortages.push(shortage);
+        }
+
+        return acc;
+    }, {});
+    
+    return Object.values(res);
+}
+
+export async function updateItem(item: Item) {
+    const {id, ...rest} = item;
+    await db.update(items).set(rest).where(eq(items.id, id));
 }
 
 export async function deleteItem(id: number) {

@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import { date, foreignKey, integer, pgEnum, pgTable, primaryKey, real, serial, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import type { getItems } from "./db.server";
 
 export const role = pgEnum('role', ['ceo', 'secretary', 'invmanager', 'teamlead']);
 export type RoleType = typeof role.enumValues[number];
@@ -145,4 +146,6 @@ export const shortages = pgTable('shortages', {
     status: shortageStatus('status').notNull(),
 });
 
-export type ItemProp = typeof items.$inferSelect & {shortages: typeof shortages.$inferSelect | null} | null;
+export type Shortage = typeof shortages.$inferSelect;
+
+export type ItemProp = Awaited<ReturnType<typeof getItems>>[number];

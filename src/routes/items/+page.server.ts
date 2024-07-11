@@ -1,4 +1,4 @@
-import { deleteItem, getItems } from '$lib/db/db.server.js';
+import { deleteItem, getItems, updateItem } from '$lib/db/db.server.js';
 import { fail } from '@sveltejs/kit';
 
 export async function load(event) {
@@ -10,6 +10,23 @@ export async function load(event) {
 }
 
 export const actions = {
+    editItem: async (event) => {
+        const formData = await event.request.formData();
+        const id = parseInt(formData.get('id') as string);
+        const name = formData.get('name') as string;
+        const price = parseInt(formData.get('price') as string);
+        const quantity = parseInt(formData.get('quantity') as string);
+        const maybeWidth = parseInt(formData.get('width') as string);
+        const maybeHeight = parseInt(formData.get('height') as string);
+
+        const width = isNaN(maybeWidth) ? null : maybeWidth;
+        const height = isNaN(maybeHeight) ? null : maybeHeight;
+
+        await updateItem({id, name, price, quantity, width, height});
+
+        return {success: true};
+    },
+
     deleteItem: async (event) => {
         const formData = await event.request.formData();
         const id = parseInt(formData.get('id') as string);
