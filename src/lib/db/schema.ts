@@ -28,13 +28,13 @@ export const contractStatus = pgEnum('contractStatus', ['new', 'inprogress', 'co
 export type ContractStatus = typeof contractStatus.enumValues[number];
 
 export const contracts = pgTable('contracts', {
-    id: serial('id').primaryKey(),
+    id: serial('contractId').primaryKey(),
     address: text('address').notNull(),
     signingDate: date('signingDate').notNull(),
     dueDate: date('dueDate').notNull(),
     price: real('price').notNull(),
-    status: contractStatus('status').notNull().default('new'),
-    contractType: contractType('type').notNull().default('newContract'),
+    type: contractType('contractType').notNull().default('newContract'),
+    status: contractStatus('contractStatus').notNull().default('new'),
 });
 
 export const teams = pgTable('teams', {
