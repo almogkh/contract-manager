@@ -1,7 +1,7 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
     import type { ItemProp } from "$lib/db/schema";
-    import { errorPopup } from "$lib/popups";
+    import { confirmationPopup, errorPopup } from "$lib/popups";
 
     export let item: ItemProp | null = null;
     export let adding: boolean = false;
@@ -11,11 +11,20 @@
     let quantity = item?.quantity ?? '';
     let width = item?.width ?? '';
     let height = item?.height ?? '';
+    let shortages = (item?.shortages?.length ?? 0) > 0;
 
     let editing = adding;
 </script>
 
-<form method="post" class="contents" use:enhance={() => {
+<form method="post" class="contents" on:submit={() => editing = false} use:enhance={async ({action, cancel}) => {
+    if (action.searchParams.has('/deleteItem')) {
+        const submit = await confirmationPopup('Are you sure you want to delete this item?');
+        if (!submit) {
+            cancel();
+            return;
+        }
+    }
+
     return ({update, result}) => {
         update({reset: false});
         if (adding)
@@ -27,7 +36,7 @@
     };
 }}>
     <div class="grid grid-cols-3 gap-x-2 w-full">
-        {#if item?.shortages?.length !== 0}
+        {#if shortages}
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6 fill-yellow-600 justify-self-start">
                 <title>This item has shortages</title>
                 <path fill-rule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clip-rule="evenodd" />
