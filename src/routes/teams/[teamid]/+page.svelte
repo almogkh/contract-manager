@@ -1,5 +1,6 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
+	import { confirmationPopup } from "$lib/popups";
 
     export let data;
     export let form;
@@ -10,7 +11,15 @@
 <span class="text-red-600 text-wrap w-4/6 mb-2 min-h-12">{form?.errorMessage ?? ''}</span>
 
 <div class="flex flex-col gap-y-2 items-start">
-    <form method="post" use:enhance={() => {
+    <form method="post" use:enhance={async ({action, cancel}) => {
+        if (action.searchParams.has('/deleteTeam')) {
+            const submit = await confirmationPopup('Are you sure you want to delete this team?');
+            if (!submit) {
+                cancel();
+                return;
+            }
+        }
+
         return ({update}) => update({reset: false});
     }} class="flex flex-col gap-4">
         <div class="flex gap-2">
