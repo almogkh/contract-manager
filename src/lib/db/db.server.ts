@@ -68,10 +68,11 @@ export async function deleteTeam(id: number) {
 }
 
 export async function getTeamSchedule(teamid: number) {
-    const rows = await db.select().from(scheduleItems).where(and(eq(scheduleItems.teamid, teamid), eq(scheduleItems.status, 'pending')))
+    const rows = await db.select().from(scheduleItems).where(eq(scheduleItems.teamid, teamid))
                     .orderBy(asc(scheduleItems.time))
                     .innerJoin(apartmentInScheduleItem, eq(apartmentInScheduleItem.itemid, scheduleItems.id))
                     .innerJoin(apartments, and(
+                            eq(apartments.status, 'pending'),
                             eq(apartments.contractid, apartmentInScheduleItem.contractid),
                             eq(apartments.floor, apartmentInScheduleItem.floor),
                             eq(apartments.number, apartmentInScheduleItem.number)
@@ -105,10 +106,6 @@ export async function getTeamSchedule(teamid: number) {
     }, {});
 
     return Object.values(result);
-}
-
-export async function markSchedItemComplete(id: number) {
-    await db.update(scheduleItems).set({status: 'complete'}).where(eq(scheduleItems.id, id));
 }
 
 export async function markApartmentComplete(contractid: number, floor: number, number: number) {

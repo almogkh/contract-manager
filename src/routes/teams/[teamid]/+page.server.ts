@@ -1,18 +1,7 @@
-import { deleteTeam, editTeam, markSchedItemComplete } from '$lib/db/db.server.js';
+import { deleteTeam, editTeam } from '$lib/db/db.server.js';
 import { fail, redirect } from '@sveltejs/kit';
 
 export const actions = {
-    markComplete: async (event) => {
-        const formData = await event.request.formData();
-        const itemid = parseInt(formData.get('id') as string);
-
-        await markSchedItemComplete(itemid);
-
-        return {
-            success: true,
-        };
-    },
-
     editTeam: async (event) => {
         const formData = await event.request.formData();
         const id = parseInt(formData.get('id') as string);

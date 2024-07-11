@@ -52,16 +52,12 @@ export type ApartmentStatus = typeof apartmentStatus.enumValues[number];
 export const workType = pgEnum('workType', ['installFrame', 'installContents']);
 export type WorkType = typeof workType.enumValues[number];
 
-export const scheduleStatus = pgEnum('scheduleStatus', ['pending', 'complete']);
-export type ScheduleStatus = typeof scheduleStatus.enumValues[number];
-
 export const scheduleItems = pgTable('scheduleItems', {
     id: serial('id').primaryKey(),
     address: text('address').notNull(),
     time: timestamp('time', {withTimezone: true}).notNull(),
     itemType: workType('itemtype').notNull(),
     teamid: integer('teamid').notNull().references(() => teams.id),
-    status: scheduleStatus('status').default('pending').notNull(),
 });
 
 export type ScheduleItem = typeof scheduleItems.$inferSelect;
