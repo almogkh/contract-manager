@@ -21,7 +21,7 @@
         if (adding)
             adding = false;
 
-        if (result.type === 'failure' && result.data?.errorMessage) {
+        if (result.type === 'failure' && result.data && typeof result.data.errorMessage === 'string') {
             errorPopup(result.data.errorMessage);
         }
     };
