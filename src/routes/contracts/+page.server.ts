@@ -45,7 +45,7 @@ export const actions = {
             
             // Validate apartment status
             for (const apartment of apartmentData) {
-                if (!apartmentStatus.enumValues.includes(apartment.aptStstus)) {
+                if (!apartmentStatus.enumValues.includes(apartment.aptStatus)) {
                     return fail(400, { message: "Invalid apartment status." });
                 }
             }
@@ -53,7 +53,7 @@ export const actions = {
             // Insert each apartment
             const contractid = result[0].id;
             for (const apartment of apartmentData) {
-                const { floor, number, windowWidth, windowHeight, doorWidth, doorHeight, aptStstus } = apartment;
+                const { floor, number, windowWidth, windowHeight, doorWidth, doorHeight, aptStatus } = apartment;
 
                 if ( isNaN(parseInt(floor)) || isNaN(parseInt(number))){
                     return fail(400, { message: "Invalid apartment floor/number." });
@@ -67,7 +67,7 @@ export const actions = {
                     windowHeight: parseFloat(windowHeight),
                     doorWidth: parseFloat(doorWidth),
                     doorHeight: parseFloat(doorHeight),
-                    status: aptStstus,
+                    status: aptStatus,
                 });
             }
 

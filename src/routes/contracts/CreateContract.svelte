@@ -23,7 +23,7 @@
     let apartments: Apartment[] = [];
 
     let contractStatusValues = ['New', 'InProgress', 'Complete'];
-    let aptStatusValues = ['Pending', 'InProgress', 'Complete'];
+    let aptStatusValues = ['Pending', 'Complete'];
 
     let showAddApartment = false;
 
