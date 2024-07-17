@@ -17,6 +17,11 @@ export const pages: {name: string, route: string, roles: RoleType[]}[] = [
         roles: ['secretary'],
     },
     {
+        name: 'Update contract status',
+        route: '/contractStatus',
+        roles: ['secretary'],
+    },
+    {
         name: 'View and handle shortages',
         route: '/shortages',
         roles: ['invmanager'],
