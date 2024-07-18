@@ -116,7 +116,7 @@ export async function markApartmentComplete(contractid: number, floor: number, n
         eq(apartments.number, number)
     ));
 }
-export async function getApartmentsList(){
+export async function getApartmentsList(status: ApartmentStatus){
     const apartmentsList = await db
     .select({
         contractid: apartments.contractid,
@@ -124,7 +124,7 @@ export async function getApartmentsList(){
         number: apartments.number,
         status: apartments.status
     })
-    .from(apartments)
+    .from(apartments).where(eq(apartments.status, status))
 
     return apartmentsList;
 }
