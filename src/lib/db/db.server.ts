@@ -4,12 +4,13 @@ import { sql as vercelSql } from "@vercel/postgres";
 import Pg from "pg";
 import * as schema from "./schema";
 import { shortages, items, itemsInApartment, apartmentInScheduleItem, apartments, users,
-    sessions, type Shortage, type ShortageStatus, type SafeUser, type Item, type User, type Apartment, type ScheduleItem,
+    sessions, type Shortage, type ShortageStatus,type ApartmentStatus, type ContractStatus, type SafeUser, type Item, type User, type Apartment, type ScheduleItem,
     type NewItem, teams, scheduleItems, contracts } from "./schema";
 import { and, eq, getTableColumns, lt, ne, sql, asc } from "drizzle-orm";
 import { NODE_DB, POSTGRES_URL } from "$env/static/private";
 
 const { Pool } = Pg;
+
 export const db = NODE_DB
                     ? drizzleNode(new Pool({connectionString: POSTGRES_URL}))
                     : drizzleVercel(vercelSql, {schema});
@@ -115,11 +116,36 @@ export async function markApartmentComplete(contractid: number, floor: number, n
         eq(apartments.number, number)
     ));
 }
+export async function getApartmentsList(status: ApartmentStatus){
+    const apartmentsList = await db
+    .select({
+        contractid: apartments.contractid,
+        floor: apartments.floor,
+        number: apartments.number,
+        status: apartments.status
+    })
+    .from(apartments).where(eq(apartments.status, status))
 
-export async function getContractById(id: number) {
-    const contract = (await db.select().from(contracts).where(eq(contracts.id, id)))[0];
-    return contract;
+    return apartmentsList;
 }
+
+export async function getApartmentsListById(id: number) {
+    const apartmentsList = await db
+    .select({
+        contractid: apartments.contractid,
+        floor: apartments.floor,
+        number: apartments.number,
+        status: apartments.status
+    })
+    .from(apartments).where(eq(apartments.contractid, id))
+
+    return apartmentsList;
+}
+
+export async function updateContractStatus(id: number, status: ContractStatus) {
+    await db.update(contracts).set({status}).where(eq(contracts.id, id));
+}
+
 
 export async function getShortages() {
     const shortagesColumns = getTableColumns(shortages);
@@ -136,6 +162,8 @@ export async function getShortages() {
 export async function updateShortage(id: number, status: ShortageStatus) {
     await db.update(shortages).set({status}).where(eq(shortages.id, id));
 }
+
+
 
 export async function getItems() {
     const itemsCols = getTableColumns(items);
