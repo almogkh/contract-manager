@@ -1,7 +1,5 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
-    import { index, int } from "drizzle-orm/mysql-core";
-    import { integer } from "drizzle-orm/pg-core";
 
     let address = '';
     let signingDate = '';
@@ -95,9 +93,8 @@
 </script>
 
 <!-- Form for creating a contract -->
-<form method="post" action="?/createContract" use:enhance={() => {
-    return ({ update }) => update({ reset: false });
-}} class="w-full max-w-lg mx-auto mt-8">
+<form method="post" action="?/createContract" use:enhance
+    class="w-full max-w-lg mx-auto mt-8">
 
     <!-- Address Input -->
     <div class="mb-4">
