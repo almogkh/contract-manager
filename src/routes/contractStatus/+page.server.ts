@@ -14,7 +14,11 @@ export const actions: Actions = {
         const number = parseInt(formData.get('number') as string);
 
         console.log(id, floor, number)
-        await markApartmentComplete(id, floor, number);
-        return { success: true };
+        try {
+            await markApartmentComplete(id, floor, number);
+            return { success: true };
+        } catch (error) {
+            
+        }
     }
 };

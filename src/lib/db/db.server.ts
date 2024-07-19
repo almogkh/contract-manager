@@ -59,6 +59,11 @@ export async function getTeam(teamid: number) {
     return team;
 }
 
+export async function getTeamsLeads() {
+    const teamsLeads = await db.select({name: teams.name}).from(teams);
+    return teamsLeads;
+}
+
 export async function createTeam(name: string, lead: SafeUser, installers: string[]) {
     await db.insert(teams).values({
         name,
@@ -136,17 +141,8 @@ export async function getApartmentsList(status: ApartmentStatus){
     return apartmentsList;
 }
 
-export async function getApartmentsListById(id: number) {
-    const apartmentsList = await db
-    .select({
-        contractid: apartments.contractid,
-        floor: apartments.floor,
-        number: apartments.number,
-        status: apartments.status
-    })
-    .from(apartments).where(eq(apartments.contractid, id))
-
-    return apartmentsList;
+export async function addScheduleItem(scheduleItem: typeof scheduleItems.$inferInsert) {
+    await db.insert(scheduleItems).values(scheduleItem);
 }
 
 export async function updateContractStatus(id: number, status: ContractStatus) {
@@ -211,3 +207,4 @@ export async function updateItem(item: Item) {
 export async function deleteItem(id: number) {
     await db.delete(items).where(eq(items.id, id));
 }
+
