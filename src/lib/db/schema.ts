@@ -54,6 +54,7 @@ export type WorkType = typeof workType.enumValues[number];
 
 export const scheduleItems = pgTable('scheduleItems', {
     id: serial('id').primaryKey(),
+    date: date('date').notNull().default(sql`current_date`),
     address: text('address').notNull(),
     time: timestamp('time', {withTimezone: true}).notNull(),
     itemType: workType('itemtype').notNull(),

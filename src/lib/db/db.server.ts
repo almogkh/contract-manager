@@ -32,9 +32,16 @@ export async function updateUser(userid: number, data: Partial<User>) {
     await db.update(users).set(data).where(eq(users.id, userid));
 }
 
+export async function addContract(newContract: typeof contracts.$inferInsert){
+    return await db.insert(contracts).values(newContract).returning();
+}
+
+export async function addApartment(newApartment: typeof apartments.$inferInsert){
+    await db.insert(apartments).values(newApartment);
+}
+
 export async function deleteUser(userid: number) {
     await db.delete(users).where(eq(users.id, userid));
-    
 }
 
 export async function getEmployeeList() {
@@ -163,7 +170,9 @@ export async function updateShortage(id: number, status: ShortageStatus) {
     await db.update(shortages).set({status}).where(eq(shortages.id, id));
 }
 
+export async function updateSchedule(){
 
+}
 
 export async function getItems() {
     const itemsCols = getTableColumns(items);
