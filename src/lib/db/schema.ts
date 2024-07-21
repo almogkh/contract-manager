@@ -55,9 +55,10 @@ export type WorkType = typeof workType.enumValues[number];
 export const scheduleItems = pgTable('scheduleItems', {
     id: serial('id').primaryKey(),
     address: text('address').notNull(),
-    date: date('time').notNull(),
+    date: date('date').notNull(),
     itemType: workType('itemtype').notNull(),
     teamid: integer('teamid').notNull().references(() => teams.id),
+    description: text('description'),
 });
 
 export type ScheduleItem = typeof scheduleItems.$inferSelect;

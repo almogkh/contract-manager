@@ -59,9 +59,9 @@ export async function getTeam(teamid: number) {
     return team;
 }
 
-export async function getTeamsLeads() {
-    const teamsLeads = await db.select({name: teams.name}).from(teams);
-    return teamsLeads;
+export async function getTeamsId() {
+    const teamsLeadsId = await db.select({id: teams.id}).from(teams);
+    return teamsLeadsId;
 }
 
 export async function createTeam(name: string, lead: SafeUser, installers: string[]) {
@@ -82,7 +82,7 @@ export async function deleteTeam(id: number) {
 
 export async function getTeamSchedule(teamid: number) {
     const rows = await db.select().from(scheduleItems).where(eq(scheduleItems.teamid, teamid))
-                    .orderBy(asc(scheduleItems.time))
+                    .orderBy(asc(scheduleItems.date))
                     .innerJoin(apartmentInScheduleItem, eq(apartmentInScheduleItem.itemid, scheduleItems.id))
                     .innerJoin(apartments, and(
                             eq(apartments.status, 'pending'),
@@ -148,7 +148,6 @@ export async function addScheduleItem(scheduleItem: typeof scheduleItems.$inferI
 export async function updateContractStatus(id: number, status: ContractStatus) {
     await db.update(contracts).set({status}).where(eq(contracts.id, id));
 }
-
 
 export async function getShortages() {
     const shortagesColumns = getTableColumns(shortages);
