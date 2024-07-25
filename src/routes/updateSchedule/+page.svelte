@@ -100,18 +100,18 @@ use:enhance={() =>{
             <span class="font-bold text-lg border-b-2">Description:</span>
             <textarea bind:value={description} name="description" rows="4" cols="25" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
         </div>
-        {#if !isEdit}
-        <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" disabled={false}>
-            Add New Schedule
-        </button>
-        {:else}
-        <button formaction="?/updateSchedule" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" disabled={false}>
-            Save Changes
-        </button>
-        <button type="button" on:click={() => exitEditView()} class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" disabled={false}>
-            Cancel Edit
-        </button>
-        {/if}
+            {#if !isEdit}
+            <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" disabled={false}>
+                Add New Schedule
+            </button>
+            {:else}
+            <button formaction="?/updateSchedule" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" disabled={false}>
+                Save Changes
+            </button>
+            <button type="button" on:click={() => exitEditView()} class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" disabled={false}>
+                Cancel Edit
+            </button>
+            {/if}
         {/if}
     </div>
 
