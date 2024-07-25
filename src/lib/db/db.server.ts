@@ -59,8 +59,8 @@ export async function getTeam(teamid: number) {
     return team;
 }
 
-export async function getTeamsId() {
-    const teamsLeadsId = await db.select({id: teams.id}).from(teams);
+export async function getTeams() {
+    const teamsLeadsId = await db.select().from(teams);
     return teamsLeadsId;
 }
 
@@ -142,7 +142,15 @@ export async function getApartmentsList(status: ApartmentStatus){
 }
 
 export async function addScheduleItem(scheduleItem: typeof scheduleItems.$inferInsert) {
-    await db.insert(scheduleItems).values(scheduleItem);
+    return await db.insert(scheduleItems).values(scheduleItem).returning();
+}
+
+export async function getScheduleItem() {
+    return await db.select().from(scheduleItems);
+}
+
+export async function deleteScheduleItem(id: number){
+    await db.delete(scheduleItems).where(eq(scheduleItems.id,id));
 }
 
 export async function updateContractStatus(id: number, status: ContractStatus) {
@@ -165,8 +173,8 @@ export async function updateShortage(id: number, status: ShortageStatus) {
     await db.update(shortages).set({status}).where(eq(shortages.id, id));
 }
 
-export async function updateSchedule(){
-
+export async function updateSchedule(scheduleItem: typeof scheduleItems.$inferInsert, id: number) {
+    await db.update(scheduleItems).set(scheduleItem).where(eq(scheduleItems.id, id));
 }
 
 export async function getItems() {
@@ -206,4 +214,6 @@ export async function updateItem(item: Item) {
 export async function deleteItem(id: number) {
     await db.delete(items).where(eq(items.id, id));
 }
+
+
 

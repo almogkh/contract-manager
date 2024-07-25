@@ -4,6 +4,7 @@
     export let data;
 
     let adding = false;
+    
 </script>
 
 <div class="flex flex-col items-center w-screen">

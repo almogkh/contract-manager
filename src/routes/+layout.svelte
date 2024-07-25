@@ -11,6 +11,7 @@
         const res = path.substring(0, path.lastIndexOf('/'));
         return res === '' ? '/' : res;
     }
+
 </script>
 
 <div class="bg-slate-300 min-h-screen flex flex-col items-center pb-8">
