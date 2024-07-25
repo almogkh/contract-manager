@@ -1,13 +1,13 @@
-import { updateSchedule, updateContractStatus, deleteScheduleItem, addScheduleItem, getApartmentsList, getTeams, getScheduleItem } from "$lib/db/db.server";
+import { updateSchedule, updateContractStatus, deleteScheduleItem, addScheduleItem, getContractsByStatus, getTeams, getScheduleItem } from "$lib/db/db.server";
 import { fail, type Actions } from "@sveltejs/kit";
 import type { WorkType } from '$lib/db/schema.js';
 
 export async function load(event) {
     const team = await getTeams();
-    const apartments = await getApartmentsList("pending");
+    const contracts = await getContractsByStatus('new');
     const schedules = await getScheduleItem();
 
-    return {team, apartments, schedules};
+    return {team, contracts, schedules};
 }
 
 export const actions: Actions = {
@@ -31,11 +31,9 @@ export const actions: Actions = {
             return fail(400, {missing: true});
 
         try{
-            // Change the contract status to 'in proggress' from 'new'
             await updateContractStatus(contractId, 'inprogress');
+            await addScheduleItem(scheduleData);   
 
-            // Insert schedule item to DB with team number and so on
-            await addScheduleItem(scheduleData);            
             return {success: true}
         }
         catch (error) {
@@ -53,13 +51,6 @@ export const actions: Actions = {
         const description = formData.get('description') as string;
         const scheduleid = formData.get("scheduleid") as string;
 
-        console.log("teamId: ", teamId);
-        console.log("contractId: ", contractId);
-        console.log("type: ", type);
-        console.log("description: ", description);
-        console.log("scheduleid: ", scheduleid);
-        console.log("formData: ", formData);
-
         const scheduleData = {
             contractid: contractId,
             date: date,
@@ -67,17 +58,13 @@ export const actions: Actions = {
             teamid: teamId,
             description: description
         }
-        
 
         if (!scheduleData || isNaN(parseInt(scheduleid)))
             return fail(400, {missing: true});
-        console.log("/n/n/n/n/nGOT HERE6/n/n/n/n/n/n");
         
         try{
             
-            console.log("/n/n/n/n/nGOT HERE2/n/n/n/n/n/n");
             await updateSchedule(scheduleData, parseInt(scheduleid));
-            console.log("/n/n/n/n/nGOT HERE3/n/n/n/n/n/n");
             return {success: true}
         }
         catch (error) {
@@ -87,7 +74,7 @@ export const actions: Actions = {
     },
     deleteSchedule: async (event) => {
         const formData = await event.request.formData();
-        const scheduleid = parseInt(formData.get('id') as string);
+        const scheduleid = parseInt(formData.get('scheduleid') as string);
         const contractid = parseInt(formData.get('contractid') as string);
 
         try{

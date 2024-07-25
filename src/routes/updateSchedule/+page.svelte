@@ -79,12 +79,9 @@ use:enhance={() =>{
             <div>  
                 <label for="contractId" class="font-bold text-lg block ">Contract ID: <span style="color:red;"> *</span></label> 
                 <select required name="contractId" bind:value={contractId} class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    {#each data.apartments as apartment}
-                        {#if lastId != apartment.contractid}  
-                        <option value={apartment.contractid.toString()}>{apartment.contractid}</option>
-                            {#await Promise.resolve() then}
-                            {lastId = apartment.contractid}
-                            {/await}
+                    {#each data.contracts as contracts}
+                        {#if lastId != contracts.id}  
+                        <option value={contracts.id.toString()}>{contracts.id}</option>
                         {/if}
                     {/each}
                 </select>
@@ -153,6 +150,8 @@ use:enhance={() =>{
                 <button formaction="?/deleteSchedule" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                     Delete
                 </button>
+                <input type="hidden" name="contractid" value={schedule.contractid} />
+                <input type="hidden" name="scheduleid" value={schedule.id} />
         </form>
         </div>
         {/if}
