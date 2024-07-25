@@ -36,7 +36,6 @@
     }
 </script>
 
-
 <style>
     /* Break line in description*/
     .description-wrapper {
@@ -45,7 +44,7 @@
       overflow-wrap: break-word;
       word-wrap: break-word;
     }
-  </style>
+</style>
 
 <form class="items-center" method="post" action={ isEdit ? "?/updateSchedule" : "?/addSchedule" } 
 use:enhance={() =>{
@@ -123,36 +122,40 @@ use:enhance={() =>{
     {#each data.schedules as schedule, index}
         {#if schedule.teamid == parseInt(teamId)}
         <div class="text-xl border-b-8 pb-2 border-gray-400">
-        <p><strong>Team ID:</strong> {schedule.teamid}</p>
-        <p><strong>Schedule ID:</strong> {schedule.id}</p>
-        <p><strong>Contract ID:</strong> {schedule.contractid}</p>
-        <p><strong>Execution Date:</strong> {schedule.date}</p>
-        <p><strong>Type:</strong> {schedule.itemType}</p>
-        <div class="description-wrapper">
-            <strong>Description:</strong>
-            <p>{schedule.description}</p>
-        </div>
-        
-        <form method="post" action="?/updateSchedule" use:enhance>
-            <button type="button" on:click={() => {
-                scheduleid = schedule.id.toString();
-                teamId = schedule.teamid.toString();
-                contractId = schedule.contractid != null ? schedule.contractid.toString() : '';
-                date = schedule.date;
-                type = schedule.itemType;
-                description = schedule.description != null ? schedule.description : '';
-                isEdit = true;
-                scrollToTop();
+            <p><strong>Team ID:</strong> {schedule.teamid}</p>
+            <p><strong>Schedule ID:</strong> {schedule.id}</p>
+            <p><strong>Contract ID:</strong> {schedule.contractid}</p>
+            <p><strong>Execution Date:</strong> {schedule.date}</p>
+            <p><strong>Type:</strong> {schedule.itemType}</p>
+            
+            {#if schedule.description != ''}
+            <div class="description-wrapper">
+                <strong>Description:</strong>
+                <p>{schedule.description}</p>
+            </div>
+            {/if}
 
-            }} class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                Edit
-            </button>
+            <form method="post" action="?/updateSchedule" use:enhance>
+                <button type="button" on:click={() => {
+                    scheduleid = schedule.id.toString();
+                    teamId = schedule.teamid.toString();
+                    contractId = schedule.contractid != null ? schedule.contractid.toString() : '';
+                    date = schedule.date;
+                    type = schedule.itemType;
+                    description = schedule.description != null ? schedule.description : '';
+                    isEdit = true;
+                    scrollToTop();
+
+                }} class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    Edit
+                </button>
+
                 <button formaction="?/deleteSchedule" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                     Delete
                 </button>
                 <input type="hidden" name="contractid" value={schedule.contractid} />
                 <input type="hidden" name="scheduleid" value={schedule.id} />
-        </form>
+            </form>
         </div>
         {/if}
     {/each}
