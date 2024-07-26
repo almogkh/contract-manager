@@ -1,6 +1,5 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
-	import CreateContract from "../contracts/CreateContract.svelte";
 
     export let data;
     export let form;

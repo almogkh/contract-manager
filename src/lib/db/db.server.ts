@@ -145,6 +145,10 @@ export async function getContractsByStatus(status: ContractStatus){
     return await db.select({id: contracts.id}).from(contracts).where(eq(contracts.status, status));
 }
 
+export async function getContractsList(){
+    return await db.select().from(contracts);
+}
+
 export async function addScheduleItem(scheduleItem: typeof scheduleItems.$inferInsert) {
     return await db.insert(scheduleItems).values(scheduleItem).returning();
 }
