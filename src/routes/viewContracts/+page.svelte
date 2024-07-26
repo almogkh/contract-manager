@@ -4,8 +4,11 @@
     export let data;
     
     let sortBy = '';
+    const options = ['ID', 'Address', 'Signing Data', 'Due Date', 'Price', 'Status', 'Type']
 
-    let options = ['ID', 'Address', 'Signing Data', 'Due Date', 'Price', 'Status', 'Type']
+    function getContractValues(contract: any) {
+        return Object.values(contract);
+    }
 
 </script>
 
@@ -15,10 +18,10 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-4">
             <select name="sort" bind:value={sortBy} class="block w-full bg-gray-100 border border-gray-300 rounded py-2 px-3 leading-tight focus:outline-none focus:bg-white focus:border-blue-500">
                 {#each options as option}
-                    <option value={option} class="text-gray-700">{option}</option>
+                    <option value={option.toLowerCase().trim()} class="text-gray-700">{option}</option>
                 {/each}
             </select>
-            <button class="mt-4 sm:mt-0 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">
+            <button type="submit" disabled={false} class="mt-4 sm:mt-0 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">
                 Submit
             </button>
         </div>
@@ -27,28 +30,20 @@
 
 
 <div class="contracts-list mt-4 overflow-x-auto">
-    <table class="min-w-full bg-white">
+    <table class="min-w-full bg-white rounded text-xl">
         <thead>
             <tr>
-                <th class="text-left py-2 px-4 border-b">ID</th>
-                <th class="text-left py-2 px-4 border-b">Address</th>
-                <th class="text-left py-2 px-4 border-b">Signing Date</th>
-                <th class="text-left py-2 px-4 border-b">Due Date</th>
-                <th class="text-left py-2 px-4 border-b">Price</th>
-                <th class="text-left py-2 px-4 border-b">Status</th>
-                <th class="text-left py-2 px-4 border-b">Type</th>
+                {#each options as option}
+                <th class="text-left py-2 px-4 border-b">{option}</th>
+                {/each}
             </tr>
         </thead>
         <tbody>
             {#each data.contracts as contract}
             <tr>
-                <td class="py-2 px-4 border-b">{contract.id}</td>
-                <td class="py-2 px-4 border-b">{contract.address}</td>
-                <td class="py-2 px-4 border-b">{contract.signingDate}</td>
-                <td class="py-2 px-4 border-b">{contract.dueDate}</td>
-                <td class="py-2 px-4 border-b">{contract.price}</td>
-                <td class="py-2 px-4 border-b">{contract.status}</td>
-                <td class="py-2 px-4 border-b">{contract.type}</td>
+                {#each getContractValues(contract) as value}
+                <td class="py-2 px-4 border-b">{value}</td>
+                {/each}
             </tr>
             {/each}
         </tbody>
