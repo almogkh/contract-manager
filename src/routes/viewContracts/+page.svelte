@@ -1,33 +1,94 @@
 <script lang="ts">
-    import  {enhance} from "$app/forms";
+    import { enhance } from "$app/forms";
 
     export let data;
-    
-    let sortBy = '';
-    const options = ['ID', 'Address', 'Signing Data', 'Due Date', 'Price', 'Status', 'Type']
 
+    let filters = {
+        id: '',
+        signingDate: '',
+        dueDate: '',
+        status: '',
+        type: ''
+    };
+
+    let filteredContracts = data.contracts;
+
+    const options = ['ID', 'Address', 'Signing Date', 'Due Date', 'Price', 'Status', 'Type'];
+
+    function filterListBy() {
+        filteredContracts = data.contracts.filter(contract => {
+            return (!filters.id || contract.id.toString().includes(filters.id)) &&
+                   (!filters.signingDate || contract.signingDate.includes(filters.signingDate)) &&
+                   (!filters.dueDate || contract.dueDate.includes(filters.dueDate)) &&
+                   (!filters.status || contract.status === filters.status) &&
+                   (!filters.type || contract.type === filters.type);
+        });
+    }
+
+    function resetFilter(){
+        filters = {
+        id: '',
+        signingDate: '',
+        dueDate: '',
+        status: '',
+        type: ''
+    };
+    }
+    
     function getContractValues(contract: any) {
         return Object.values(contract);
     }
-
 </script>
 
-<form method="post" action="?/" use:enhance>
-    <div class="font-bold py-4 px-4 sm:px-6 lg:px-40 rounded-lg bg-white shadow-md focus:outline-none focus:shadow-outline">
-        <label for="sort" class="block mb-2 text-gray-700">Sort By:</label>
-        <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-4">
-            <select name="sort" bind:value={sortBy} class="block w-full bg-gray-100 border border-gray-300 rounded py-2 px-3 leading-tight focus:outline-none focus:bg-white focus:border-blue-500">
-                {#each options as option}
-                    <option value={option.toLowerCase().trim()} class="text-gray-700">{option}</option>
-                {/each}
-            </select>
-            <button type="submit" disabled={false} class="mt-4 sm:mt-0 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">
-                Submit
-            </button>
+<form method="post" action="?/filterList" use:enhance>
+    <div class="filters p-4 mb-4">
+        
+        <div class="mb-4 bm-16 text-2xl">
+            <label for="id" class="block text-gray-700 font-bold">ID:</label>
+            <input type="text" id="id" bind:value={filters.id} class="w-full border rounded px-2 py-1 "/>
         </div>
+        
+        <div class="mb-4 bm-16 text-2xl">
+            <label for="signingDate" class="block text-gray-700 font-bold">Signing Date:</label>
+            <input type="date" id="signingDate" bind:value={filters.signingDate} class="w-full border rounded px-2 py-1"/>
+        </div>
+        
+        <div class="mb-4 bm-16 text-2xl">
+            <label for="dueDate" class="block text-gray-700 font-bold ">Due Date:</label>
+            <input type="date" id="dueDate" bind:value={filters.dueDate} class="w-full border rounded px-2 py-1"/>
+        </div>
+
+        <div class="mb-4 bm-16 text-2xl">
+            <label for="status" class="block text-gray-700 font-bold">Status:</label>
+            <select name="contractStatus" bind:value={filters.status} class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                <option value="">Any</option>
+                <option value="new">New</option>
+                <option value="inprogress">In Progress</option>
+                <option value="complete">Complete</option>
+            </select>
+        </div>
+
+        <div class="mb-4 bm-16 text-2xl">
+            <label for="type" class="block text-gray-700 font-bold">Type:</label>
+            <select name="contractType" bind:value={filters.type} class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                <option value="">Any</option>
+                <option value="newContract">New Contract</option>
+                <option value="repairedContract">Repaired Contract</option>
+            </select>
+        </div>
+
+        <button type="button" on:click={filterListBy} class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            Apply Filters
+        </button>
+        <button type="button" on:click={() => {
+            resetFilter();
+            filterListBy();
+        }} class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            clear
+        </button>
+
     </div>
 </form>
-
 
 <div class="contracts-list mt-4 overflow-x-auto">
     <table class="min-w-full bg-white rounded text-xl">
@@ -39,7 +100,7 @@
             </tr>
         </thead>
         <tbody>
-            {#each data.contracts as contract}
+            {#each filteredContracts as contract}
             <tr>
                 {#each getContractValues(contract) as value}
                 <td class="py-2 px-4 border-b">{value}</td>
@@ -49,4 +110,3 @@
         </tbody>
     </table>
 </div>
-
