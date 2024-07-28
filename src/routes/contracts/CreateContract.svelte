@@ -22,7 +22,7 @@
 
     let apartments: Apartment[] = [];
 
-    let contractStatusValues = ['New', 'InProgress', 'Complete'];
+    let contractStatusValues = ['New', 'In Progress', 'Complete'];
     let aptStatusValues = ['Pending', 'Complete'];
 
     let showAddApartment = false;
@@ -145,7 +145,7 @@
             Contract Status: <span style="color:red;">*</span>
             <select name="contractStatus" bind:value={contractStatus} required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                 {#each contractStatusValues as val}
-                <option value={val.toLowerCase()}>{val}</option>
+                <option value={val.toLowerCase().trim()}>{val}</option>
                 {/each}
             </select>
         </label>
@@ -230,6 +230,11 @@
             </label>
             {#if newApartment.isDoorChecked}
             <div>
+                <!-- 
+                    Change the door and window to Item type
+                    After contract type becaome "inprogress" decrease item from DB
+                    In case there is no door we creating shortage
+                  -->
                 <label class="block text-gray-700 text-sm font-bold mb-2">
                     Door Width: <span style="color:red;">*</span>
                     <input type="number" step="0.01" bind:value={newApartment.doorWidth} required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">

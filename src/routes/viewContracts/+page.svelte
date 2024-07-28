@@ -42,7 +42,7 @@
 
 <form method="post" action="?/filterList" use:enhance>
     <div class="filters p-4 mb-4">
-        
+
         <div class="mb-4 bm-16 text-2xl">
             <label for="id" class="block text-gray-700 font-bold">ID:</label>
             <input type="text" id="id" bind:value={filters.id} class="w-full border rounded px-2 py-1 "/>

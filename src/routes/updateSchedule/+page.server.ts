@@ -31,7 +31,7 @@ export const actions: Actions = {
             return fail(400, {missing: true});
 
         try{
-            await updateContractStatus(contractId, 'inprogress');
+            //await updateContractStatus(contractId, 'inprogress');
             await addScheduleItem(scheduleData);   
 
             return {success: true}
@@ -79,7 +79,7 @@ export const actions: Actions = {
 
         try{
             await deleteScheduleItem(scheduleid);
-            await updateContractStatus(contractid, 'new');
+            //await updateContractStatus(contractid, 'new');
         }
         catch (error) {
             console.error(error);

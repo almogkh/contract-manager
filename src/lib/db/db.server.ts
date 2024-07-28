@@ -6,7 +6,7 @@ import * as schema from "./schema";
 import { shortages, items, itemsInApartment, apartmentInScheduleItem, apartments, users,
     sessions, type Shortage, type ShortageStatus,type ApartmentStatus, type ContractStatus, type SafeUser, type Item, type User, type Apartment, type ScheduleItem,
     type NewItem, teams, scheduleItems, contracts } from "./schema";
-import { and, eq, getTableColumns, lt, ne, sql, asc } from "drizzle-orm";
+import { and, eq, getTableColumns, lt, ne, sql, asc, or } from "drizzle-orm";
 import { NODE_DB, POSTGRES_URL } from "$env/static/private";
 
 const { Pool } = Pg;
@@ -141,8 +141,16 @@ export async function getApartmentsList(status: ApartmentStatus){
     return apartmentsList;
 }
 
-export async function getContractsByStatus(status: ContractStatus){
-    return await db.select({id: contracts.id}).from(contracts).where(eq(contracts.status, status));
+
+export async function getActiveContracts() {
+    return await db.select({ id: contracts.id, status: contracts.status})
+        .from(contracts)
+        .where(
+            or(
+                eq(contracts.status, "inprogress"),
+                eq(contracts.status, "new")
+            )
+        );
 }
 
 export async function getContractsList(){
