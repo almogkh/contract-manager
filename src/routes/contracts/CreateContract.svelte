@@ -230,7 +230,7 @@
             </label>
             {#if newApartment.isDoorChecked}
             <div>
-                <!-- 
+                <!--
                     Change the door and window to Item type
                     After contract type becaome "inprogress" decrease item from DB
                     In case there is no door we creating shortage

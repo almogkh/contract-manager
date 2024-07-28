@@ -141,6 +141,9 @@ export async function getApartmentsList(status: ApartmentStatus){
     return apartmentsList;
 }
 
+export async function getContractsByStatus(status: ContractStatus){
+    return await db.select().from(contracts).where(eq(contracts.status, status));
+}
 
 export async function getActiveContracts() {
     return await db.select({ id: contracts.id, status: contracts.status})

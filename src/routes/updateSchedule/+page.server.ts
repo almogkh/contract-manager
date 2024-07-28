@@ -4,7 +4,7 @@ import type { WorkType } from '$lib/db/schema.js';
 
 export async function load(event) {
     const team = await getTeams();
-    const contracts = await getContractsByStatus('new');
+    const contracts = await getContractsByStatus('inprogress');
     const schedules = await getScheduleItem();
 
     return {team, contracts, schedules};

@@ -20,7 +20,8 @@ export const actions: Actions = {
             await updateContractStatus(id, status);
             return { success: true };
         } catch (error) { 
-            return fail(500, {error});
+            console.error("Error processing status:", error);
+            return fail(500, { error: "Failed to process status" });
         }
     }
 };
