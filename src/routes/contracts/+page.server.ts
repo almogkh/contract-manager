@@ -1,6 +1,11 @@
-import { db, addContract, addApartment } from '$lib/db/db.server.js';
-import { apartments, contracts, type ContractStatus, type ContractType, apartmentStatus } from '$lib/db/schema.js';
+import { getItemsData, addContract, addApartment } from '$lib/db/db.server.js';
+import { type ContractStatus, type ContractType, apartmentStatus } from '$lib/db/schema.js';
 import { fail } from '@sveltejs/kit';
+
+export async function load(event) {
+    const items = await getItemsData();
+    return { items };
+}
 
 export const actions = {
     createContract: async ({ request }) => {
@@ -12,7 +17,7 @@ export const actions = {
         const type = formData.get('contractType') as ContractType;
         const status = formData.get('contractStatus') as ContractStatus;
 
-        // Extract apartments data            
+        // Extract apartments data
         const apartmentDataStr = formData.get('apartments') as string;
         
         const data = [
@@ -50,25 +55,41 @@ export const actions = {
 
             // Insert each apartment
             for (const apartment of apartmentData) {
+                const { floor, number, aptItems, aptStatus } = apartment;
 
-                const { floor, number, windowWidth, windowHeight, doorWidth, doorHeight, aptStatus } = apartment;
-                
+                // Initialize default values for door and window dimensions
+                let doorWidth = null;
+                let doorHeight = null;
+                let windowWidth = null;
+                let windowHeight = null;
+
+                // Process items to extract dimensions
+                for (const item of aptItems) {
+                    if (item.name === "Door") {
+                        doorWidth = parseFloat(item.width);
+                        doorHeight = parseFloat(item.height);
+                    } else if (item.name.toLowerCase() === "Window") {
+                        windowWidth = parseFloat(item.width);
+                        windowHeight = parseFloat(item.height);
+                    }
+                }
+
                 const aptData = {
                     contractid,
                     floor: parseInt(floor),
                     number: parseInt(number),
-                    windowWidth: parseFloat(windowWidth),
-                    windowHeight: parseFloat(windowHeight),
-                    doorWidth: parseFloat(doorWidth),
-                    doorHeight: parseFloat(doorHeight),
+                    windowWidth,
+                    windowHeight,
+                    doorWidth,
+                    doorHeight,
                     status: aptStatus
-                }
+                };
 
-                if ( isNaN(floor) || isNaN(number)){
+                if (isNaN(floor) || isNaN(number)){
                     return fail(400, { message: "Invalid apartment floor/number." });
                 }
-                
-                addApartment(aptData);
+
+                await addApartment(aptData);
             }
 
             return { success: true };

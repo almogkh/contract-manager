@@ -128,7 +128,7 @@ export async function markApartmentComplete(contractid: number, floor: number, n
         eq(apartments.number, number)
     ));
 }
-export async function getApartmentsList(status: ApartmentStatus){
+export async function getApartmentsListByStatus(status: ApartmentStatus){
     const apartmentsList = await db
     .select({
         contractid: apartments.contractid,
@@ -141,12 +141,25 @@ export async function getApartmentsList(status: ApartmentStatus){
     return apartmentsList;
 }
 
+export async function getApartmentsListById(id: number){
+    const apartmentsList = await db
+    .select({
+        windowWidth: apartments.windowWidth,
+        windowHeight: apartments.windowHeight,
+        doorWidth: apartments.doorWidth,
+        doorHeight: apartments.doorHeight
+    })
+    .from(apartments).where(eq(apartments.contractid, id))
+
+    return apartmentsList;
+}
+
 export async function getContractsByStatus(status: ContractStatus){
     return await db.select().from(contracts).where(eq(contracts.status, status));
 }
 
 export async function getActiveContracts() {
-    return await db.select({ id: contracts.id, status: contracts.status})
+    return await db.select({ id: contracts.id, status: contracts.status, dueDate: contracts.dueDate} )
         .from(contracts)
         .where(
             or(
@@ -196,6 +209,10 @@ export async function updateSchedule(scheduleItem: typeof scheduleItems.$inferIn
     await db.update(scheduleItems).set(scheduleItem).where(eq(scheduleItems.id, id));
 }
 
+export async function getItemsData(){
+    return await db.select().from(items);
+}
+
 export async function getItems() {
     const itemsCols = getTableColumns(items);
     const shortagesCols = getTableColumns(shortages);
@@ -228,6 +245,35 @@ export async function addItem(item: NewItem) {
 export async function updateItem(item: Item) {
     const {id, ...rest} = item;
     await db.update(items).set(rest).where(eq(items.id, id));
+}
+
+export async function getItemByNWH(name: string, width: number, height: number) {
+    const item = await db.select().from(items).where(and(eq(items.name, name), eq(items.width, width), eq(items.height, height)));
+    return item.length > 0 ? item[0] : null;
+}
+
+export async function createShortage(itemId: number, amount: number, dueDate: string) {
+    await db.insert(shortages).values({
+        itemid: itemId,
+        amount: amount,
+        dueDate: dueDate,
+        status: 'pending'
+    });
+}
+
+export async function updateItemQuantity(id: number) {
+    const [currentItem] = await db
+        .select({ quantity: items.quantity })
+        .from(items)
+        .where(eq(items.id, id));
+
+    if (currentItem && currentItem.quantity > 0) {
+        const newQuantity = currentItem.quantity - 1;
+
+        await db.update(items)
+            .set({ quantity: newQuantity })
+            .where(eq(items.id, id));
+    }
 }
 
 export async function deleteItem(id: number) {
