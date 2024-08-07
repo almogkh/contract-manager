@@ -141,6 +141,11 @@ export async function getApartmentsListByStatus(status: ApartmentStatus){
     return apartmentsList;
 }
 
+export async function getApartmentsList(){
+    const apartmentsList = await db.select().from(apartments).where(eq(apartments.status, 'pending'));
+    return apartmentsList;
+}
+
 export async function getApartmentsListById(id: number){
     const apartmentsList = await db
     .select({
@@ -187,6 +192,14 @@ export async function deleteScheduleItem(id: number){
 
 export async function updateContractStatus(id: number, status: ContractStatus) {
     await db.update(contracts).set({status}).where(eq(contracts.id, id));
+}
+
+export async function updateApartmentStatus(id: number, floor: number, number: number) {
+    await db.update(apartments).set({status: 'complete'})
+    .where(and( eq(apartments.contractid, id),
+                eq(apartments.floor, floor),
+                eq(apartments.number, number)
+            ));
 }
 
 export async function getShortages() {
