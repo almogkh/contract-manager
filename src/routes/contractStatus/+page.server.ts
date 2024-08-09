@@ -50,25 +50,5 @@ export const actions: Actions = {
             console.error("Error processing status:", error);
             return fail(500, { error: "Failed to process status" });
         }
-    },
-    updateApartmentStatus: async (event)  => {
-        const formData = await event.request.formData();
-        const contractid = parseInt(formData.get('contractid') as string);
-        const floor = parseInt(formData.get('floor') as string);
-        const number = parseInt(formData.get('number') as string);
-
-        if (isNaN(contractid || floor || number)) {
-            return fail(400, {missing: true});
-        }
-
-        try {
-            await updateApartmentStatus(contractid, floor, number);
-
-            return { success: true };
-        } catch (error) { 
-            console.error("Error processing status:", error);
-            return fail(500, { error: "Failed to process status" });
-        }
-
     }
 };

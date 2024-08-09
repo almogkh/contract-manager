@@ -20,6 +20,9 @@ export const actions = {
         // Extract apartments data
         const apartmentDataStr = formData.get('apartments') as string;
         
+
+        // Change the code so that the due date will be by apartments and not by contracts
+        
         const data = [
             address,
             signingDate,
