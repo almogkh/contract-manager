@@ -52,7 +52,7 @@
     <h1 class="text-lg border-t border-black w-full underline">Team Schedule:</h1>
     {#each data.schedule as scheduleItem}
         <span>Address: {scheduleItem.item.address}</span>
-        <span>Time: {scheduleItem.item.time.toDateString()}</span>
+        <span>Time: {scheduleItem.item.date}</span>
         <span>Work type: {scheduleItem.item.itemType === 'installFrame' ? 'Install frames' : 'Install contents'}</span>
         <a href="/teams/{data.team.id}/{scheduleItem.item.id}" class="text-blue-600 underline">View apartments</a>
         <span class="w-full border-b border-black"/>

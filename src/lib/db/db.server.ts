@@ -6,7 +6,7 @@ import * as schema from "./schema";
 import { shortages, items, itemsInApartment, apartmentInScheduleItem, apartments, users,
     sessions, type Shortage, type ShortageStatus,type ApartmentStatus, type ContractStatus, type SafeUser, type Item, type User, type Apartment, type ScheduleItem,
     type NewItem, teams, scheduleItems, contracts } from "./schema";
-import { and, eq, getTableColumns, lt, ne, sql, asc } from "drizzle-orm";
+import { and, eq, getTableColumns, lt, ne, sql, asc, or } from "drizzle-orm";
 import { NODE_DB, POSTGRES_URL } from "$env/static/private";
 
 const { Pool } = Pg;
@@ -32,9 +32,16 @@ export async function updateUser(userid: number, data: Partial<User>) {
     await db.update(users).set(data).where(eq(users.id, userid));
 }
 
+export async function addContract(newContract: typeof contracts.$inferInsert){
+    return await db.insert(contracts).values(newContract).returning();
+}
+
+export async function addApartment(newApartment: typeof apartments.$inferInsert){
+    await db.insert(apartments).values(newApartment);
+}
+
 export async function deleteUser(userid: number) {
     await db.delete(users).where(eq(users.id, userid));
-    
 }
 
 export async function getEmployeeList() {
@@ -50,6 +57,11 @@ export async function getEmployeeTeams(user: SafeUser) {
 export async function getTeam(teamid: number) {
     const team = (await db.select().from(teams).where(eq(teams.id, teamid)))[0];
     return team;
+}
+
+export async function getTeams() {
+    const teamsLeadsId = await db.select().from(teams);
+    return teamsLeadsId;
 }
 
 export async function createTeam(name: string, lead: SafeUser, installers: string[]) {
@@ -70,8 +82,8 @@ export async function deleteTeam(id: number) {
 
 export async function getTeamSchedule(teamid: number) {
     const rows = await db.select().from(scheduleItems).where(eq(scheduleItems.teamid, teamid))
-                    .orderBy(asc(scheduleItems.time))
-                    .innerJoin(apartmentInScheduleItem, eq(apartmentInScheduleItem.itemid, scheduleItems.id))
+                    .orderBy(asc(scheduleItems.date))
+                    //.innerJoin(apartmentInScheduleItem, eq(apartmentInScheduleItem.itemid, scheduleItems.id))
                     .innerJoin(apartments, and(
                             eq(apartments.status, 'pending'),
                             eq(apartments.contractid, apartmentInScheduleItem.contractid),
@@ -83,11 +95,12 @@ export async function getTeamSchedule(teamid: number) {
                             eq(apartments.floor, itemsInApartment.floor),
                             eq(apartments.number, itemsInApartment.number)
                     ))
-                    .innerJoin(items, eq(items.id, itemsInApartment.itemid));
+                    .innerJoin(items, eq(items.id, itemsInApartment.itemid))
+                    .innerJoin(contracts, eq(apartments.contractid, contracts.id));
 
     type ApartmentWithItems = (Apartment & {items: Item[]});
-    const result = rows.reduce<Record<number, {item: ScheduleItem, apartments: ApartmentWithItems[]}>>((acc, row) => {
-        const item = row.scheduleItems;
+    const result = rows.reduce<Record<number, {item: ScheduleItem & {address: string}, apartments: ApartmentWithItems[]}>>((acc, row) => {
+        const item = {...row.scheduleItems, address: row.contracts.address};
         const apartment = row.apartments;
 
         if (!acc[item.id]) {
@@ -116,7 +129,7 @@ export async function markApartmentComplete(contractid: number, floor: number, n
         eq(apartments.number, number)
     ));
 }
-export async function getApartmentsList(status: ApartmentStatus){
+export async function getApartmentsListByStatus(status: ApartmentStatus){
     const apartmentsList = await db
     .select({
         contractid: apartments.contractid,
@@ -129,23 +142,66 @@ export async function getApartmentsList(status: ApartmentStatus){
     return apartmentsList;
 }
 
-export async function getApartmentsListById(id: number) {
+export async function getApartmentsList(){
+    const apartmentsList = await db.select().from(apartments).where(eq(apartments.status, 'pending'));
+    return apartmentsList;
+}
+
+export async function getApartmentsListById(id: number){
     const apartmentsList = await db
     .select({
-        contractid: apartments.contractid,
-        floor: apartments.floor,
-        number: apartments.number,
-        status: apartments.status
+        windowWidth: apartments.windowWidth,
+        windowHeight: apartments.windowHeight,
+        doorWidth: apartments.doorWidth,
+        doorHeight: apartments.doorHeight
     })
     .from(apartments).where(eq(apartments.contractid, id))
 
     return apartmentsList;
 }
 
+export async function getContractsByStatus(status: ContractStatus){
+    return await db.select().from(contracts).where(eq(contracts.status, status));
+}
+
+export async function getActiveContracts() {
+    return await db.select({ id: contracts.id, status: contracts.status, dueDate: contracts.dueDate} )
+        .from(contracts)
+        .where(
+            or(
+                eq(contracts.status, "inprogress"),
+                eq(contracts.status, "new")
+            )
+        );
+}
+
+export async function getContractsList(){
+    return await db.select().from(contracts);
+}
+
+export async function addScheduleItem(scheduleItem: typeof scheduleItems.$inferInsert) {
+    return await db.insert(scheduleItems).values(scheduleItem).returning();
+}
+
+export async function getScheduleItem() {
+    return await db.select().from(scheduleItems);
+}
+
+export async function deleteScheduleItem(id: number){
+    await db.delete(scheduleItems).where(eq(scheduleItems.id,id));
+}
+
 export async function updateContractStatus(id: number, status: ContractStatus) {
     await db.update(contracts).set({status}).where(eq(contracts.id, id));
 }
 
+export async function updateApartmentStatus(id: number, floor: number, number: number) {
+    await db.update(apartments).set({status: 'complete'})
+    .where(and( eq(apartments.contractid, id),
+                eq(apartments.floor, floor),
+                eq(apartments.number, number)
+            ));
+}
 
 export async function getShortages() {
     const shortagesColumns = getTableColumns(shortages);
@@ -163,7 +219,13 @@ export async function updateShortage(id: number, status: ShortageStatus) {
     await db.update(shortages).set({status}).where(eq(shortages.id, id));
 }
 
+export async function updateSchedule(scheduleItem: typeof scheduleItems.$inferInsert, id: number) {
+    await db.update(scheduleItems).set(scheduleItem).where(eq(scheduleItems.id, id));
+}
 
+export async function getItemsData(){
+    return await db.select().from(items);
+}
 
 export async function getItems() {
     const itemsCols = getTableColumns(items);
@@ -199,6 +261,38 @@ export async function updateItem(item: Item) {
     await db.update(items).set(rest).where(eq(items.id, id));
 }
 
+export async function getItemByNWH(name: string, width: number, height: number) {
+    const item = await db.select().from(items).where(and(eq(items.name, name), eq(items.width, width), eq(items.height, height)));
+    return item.length > 0 ? item[0] : null;
+}
+
+export async function createShortage(itemId: number, amount: number, dueDate: string) {
+    await db.insert(shortages).values({
+        itemid: itemId,
+        amount: amount,
+        dueDate: dueDate,
+        status: 'pending'
+    });
+}
+
+export async function updateItemQuantity(id: number) {
+    const [currentItem] = await db
+        .select({ quantity: items.quantity })
+        .from(items)
+        .where(eq(items.id, id));
+
+    if (currentItem && currentItem.quantity > 0) {
+        const newQuantity = currentItem.quantity - 1;
+
+        await db.update(items)
+            .set({ quantity: newQuantity })
+            .where(eq(items.id, id));
+    }
+}
+
 export async function deleteItem(id: number) {
     await db.delete(items).where(eq(items.id, id));
 }
+
+
+

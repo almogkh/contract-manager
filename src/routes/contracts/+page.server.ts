@@ -1,6 +1,11 @@
-import { db } from '$lib/db/db.server.js';
-import { apartments, contracts, type ContractStatus, type ContractType, apartmentStatus } from '$lib/db/schema.js';
+import { getItemsData, addContract, addApartment } from '$lib/db/db.server.js';
+import { type ContractStatus, type ContractType, apartmentStatus } from '$lib/db/schema.js';
 import { fail } from '@sveltejs/kit';
+
+export async function load(event) {
+    const items = await getItemsData();
+    return { items };
+}
 
 export const actions = {
     createContract: async ({ request }) => {
@@ -12,7 +17,11 @@ export const actions = {
         const type = formData.get('contractType') as ContractType;
         const status = formData.get('contractStatus') as ContractStatus;
 
+        // Extract apartments data
         const apartmentDataStr = formData.get('apartments') as string;
+        
+
+        // Change the code so that the due date will be by apartments and not by contracts
         
         const data = [
             address,
@@ -22,53 +31,68 @@ export const actions = {
             type,
             status
         ];
-        
+        // Validate contract data
         if (!data.every((value) => value !== null && value !== '')) 
             return fail(400, { missing: true });
         
+        // Validate apartments list
+        if (!apartmentDataStr) {
+            return fail(400, { missingApartments: true });
+        }
+        
+        const apartmentData = JSON.parse(apartmentDataStr);            
+        
+        // Validate apartment status
+        for (const apartment of apartmentData) {
+            if (!apartmentStatus.enumValues.includes(apartment.aptStatus)) {
+                return fail(400, { message: "Invalid apartment status." });
+            }
+        }
+        
         try {
-            // Insert a new contract and return the contractId of the inserted row
-            const result = await db.insert(contracts).values({
-                address,
-                signingDate,
-                price,
-                dueDate,
-                type,
-                status,
-            }).returning();
-            
-            // Extract apartments data            
-            if (!apartmentDataStr) {
-                return fail(400, { missingApartments: true });
-            }
-            const apartmentData = JSON.parse(apartmentDataStr);            
-            
-            // Validate apartment status
-            for (const apartment of apartmentData) {
-                if (!apartmentStatus.enumValues.includes(apartment.aptStatus)) {
-                    return fail(400, { message: "Invalid apartment status." });
-                }
-            }
+            // Insert a new contract and return the contract
+            const result = await addContract({address, signingDate, price, dueDate, type, status});
+
+            // Extract contract id
+            const contractid = result[0].id;
 
             // Insert each apartment
-            const contractid = result[0].id;
             for (const apartment of apartmentData) {
-                const { floor, number, windowWidth, windowHeight, doorWidth, doorHeight, aptStatus } = apartment;
+                const { floor, number, aptItems, aptStatus } = apartment;
 
-                if ( isNaN(parseInt(floor)) || isNaN(parseInt(number))){
-                    return fail(400, { message: "Invalid apartment floor/number." });
+                // Initialize default values for door and window dimensions
+                let doorWidth = null;
+                let doorHeight = null;
+                let windowWidth = null;
+                let windowHeight = null;
+
+                // Process items to extract dimensions
+                for (const item of aptItems) {
+                    if (item.name === "Door") {
+                        doorWidth = parseFloat(item.width);
+                        doorHeight = parseFloat(item.height);
+                    } else if (item.name.toLowerCase() === "Window") {
+                        windowWidth = parseFloat(item.width);
+                        windowHeight = parseFloat(item.height);
+                    }
                 }
 
-                await db.insert(apartments).values({
+                const aptData = {
                     contractid,
                     floor: parseInt(floor),
                     number: parseInt(number),
-                    windowWidth: parseFloat(windowWidth),
-                    windowHeight: parseFloat(windowHeight),
-                    doorWidth: parseFloat(doorWidth),
-                    doorHeight: parseFloat(doorHeight),
-                    status: aptStatus,
-                });
+                    windowWidth,
+                    windowHeight,
+                    doorWidth,
+                    doorHeight,
+                    status: aptStatus
+                };
+
+                if (isNaN(floor) || isNaN(number)){
+                    return fail(400, { message: "Invalid apartment floor/number." });
+                }
+
+                await addApartment(aptData);
             }
 
             return { success: true };

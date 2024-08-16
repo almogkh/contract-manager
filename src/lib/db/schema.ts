@@ -42,7 +42,8 @@ export const teams = pgTable('teams', {
     id: serial('id').primaryKey(),
     name: text('name').notNull(),
     lead: integer('lead').notNull().references(() => users.id),
-    contract: integer('contract').references(() => contracts.id),
+    //*** One team can work on several contracts parallel. ***
+    //contract: integer('contract').references(() => contracts.id), 
     installers: text('installers').array().notNull().default(sql`'{}'`),
 });
 
@@ -54,10 +55,11 @@ export type WorkType = typeof workType.enumValues[number];
 
 export const scheduleItems = pgTable('scheduleItems', {
     id: serial('id').primaryKey(),
-    address: text('address').notNull(),
-    time: timestamp('time', {withTimezone: true}).notNull(),
+    date: date('date').notNull(),
+    contractid: integer('contractid').references(() => contracts.id),
     itemType: workType('itemtype').notNull(),
     teamid: integer('teamid').notNull().references(() => teams.id),
+    description: text('description'),
 });
 
 export type ScheduleItem = typeof scheduleItems.$inferSelect;
