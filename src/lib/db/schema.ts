@@ -38,6 +38,8 @@ export const contracts = pgTable('contracts', {
     type: contractType('type').notNull().default('newContract'),
 });
 
+export type Contract = typeof contracts.$inferSelect;
+
 export const teams = pgTable('teams', {
     id: serial('id').primaryKey(),
     name: text('name').notNull(),
@@ -56,7 +58,7 @@ export type WorkType = typeof workType.enumValues[number];
 export const scheduleItems = pgTable('scheduleItems', {
     id: serial('id').primaryKey(),
     date: date('date').notNull(),
-    contractid: integer('contractid').references(() => contracts.id),
+    contractid: integer('contractid').notNull().references(() => contracts.id),
     itemType: workType('itemtype').notNull(),
     teamid: integer('teamid').notNull().references(() => teams.id),
     description: text('description'),

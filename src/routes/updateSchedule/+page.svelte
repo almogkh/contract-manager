@@ -10,10 +10,10 @@
     let date = '';
     let type = '';
     let description = '';
+    let apartments: {floor: number, number: number}[] = [];
+    let selectedApartment: string;
     
     $: lastId = -1;
-
-    const workType = ["installFrame", "installContents"]
 
     let showTeamInfo = false;
     let isEdit = false;
@@ -31,6 +31,7 @@
         date = '';
         type = '';
         description = '';
+        apartments = [];
         isEdit = false;
     }
 </script>
@@ -77,7 +78,7 @@ use:enhance={() =>{
             <div>  
                 <label for="contractId" class="font-bold text-lg block ">Contract ID: <span style="color:red;"> *</span></label> 
                 <select required name="contractId" bind:value={contractId} class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    {#each data.contracts as contracts}
+                    {#each Object.values(data.contracts) as contracts}
                         {#if lastId != contracts.id}  
                         <option value={contracts.id.toString()}>{contracts.id}</option>
                         {/if}
@@ -99,6 +100,33 @@ use:enhance={() =>{
             <span class="font-bold text-lg border-b-2">Description:</span>
             <textarea bind:value={description} name="description" rows="4" cols="25" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
         </div>
+        <div class="flex flex-col space-y-2">
+            <span class="font-bold text-lg border-b-2">Apartments:</span>
+            {#each apartments as apartment}
+                <span>Floor: {apartment.floor}</span>
+                <span class="border-b border-black w-max">Number: {apartment.number}</span>
+                <button type="button" class="bg-red-500 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" on:click={() => {
+                    const idx = apartments.findIndex(val => val.floor === apartment.floor && val.number === apartment.number);
+                    apartments = apartments.toSpliced(idx, 1);
+                }}>Remove apartment</button>
+                <input type="hidden" name="floor" value={apartment.floor}/>
+                <input type="hidden" name="number" value={apartment.number}/>
+            {/each}
+            <select bind:value={selectedApartment} class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            {#if contractId !== ''}
+            {#each data.contracts[parseInt(contractId)].apartments.filter(val => !apartments.find(v => v.floor === val.floor && v.number === val.number)) as apartment}
+                <option value={apartment.floor + '-' + apartment.number}>Floor: {apartment.floor}, number: {apartment.number}</option>
+            {/each}
+            {/if}
+            </select>
+            <button type="button" class="bg-blue-500 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" on:click={() => {
+                if (!selectedApartment)
+                    return;
+                const [floor, number] = selectedApartment.split('-');
+                apartments.push({floor: parseInt(floor), number: parseInt(number)});
+                apartments = apartments;
+            }}>Add apartment</button>
+        </div>
             {#if !isEdit}
             <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" disabled={false}>
                 Add New Schedule
@@ -118,30 +146,36 @@ use:enhance={() =>{
 </form>
 
 {#if showTeamInfo}
-    {#each data.schedules as schedule, index}
-        {#if schedule.teamid == parseInt(teamId)}
+    {#each data.schedules as teamSchedule}
+    {#each teamSchedule as schedule}
+        {#if schedule.item.teamid == parseInt(teamId)}
         <div class="text-xl border-b-8 pb-2 border-gray-400">
-            <p><strong>Team ID:</strong> {schedule.teamid}</p>
-            <p><strong>Schedule ID:</strong> {schedule.id}</p>
-            <p><strong>Contract ID:</strong> {schedule.contractid}</p>
-            <p><strong>Execution Date:</strong> {schedule.date}</p>
-            <p><strong>Type:</strong> {schedule.itemType}</p>
+            <p><strong>Team ID:</strong> {schedule.item.teamid}</p>
+            <p><strong>Schedule ID:</strong> {schedule.item.id}</p>
+            <p><strong>Contract ID:</strong> {schedule.item.contractid}</p>
+            <p><strong>Execution Date:</strong> {schedule.item.date}</p>
+            <p><strong>Type:</strong> {schedule.item.itemType}</p>
             
-            {#if schedule.description != ''}
+            {#if schedule.item.description != ''}
             <div class="description-wrapper">
                 <strong>Description:</strong>
-                <p>{schedule.description}</p>
+                <p>{schedule.item.description}</p>
             </div>
             {/if}
 
             <form method="post" action="?/updateSchedule" use:enhance>
                 <button type="button" on:click={() => {
-                    scheduleid = schedule.id.toString();
-                    teamId = schedule.teamid.toString();
-                    contractId = schedule.contractid != null ? schedule.contractid.toString() : '';
-                    date = schedule.date;
-                    type = schedule.itemType;
-                    description = schedule.description != null ? schedule.description : '';
+                    scheduleid = schedule.item.id.toString();
+                    teamId = schedule.item.teamid.toString();
+                    contractId = schedule.item.contractid != null ? schedule.item.contractid.toString() : '';
+                    date = schedule.item.date;
+                    type = schedule.item.itemType;
+                    description = schedule.item.description != null ? schedule.item.description : '';
+                    apartments = [];
+                    for (const item of schedule.apartments) {
+                        apartments.push({floor: item.floor, number: item.number});
+                    }
+                    apartments = apartments;
                     isEdit = true;
                     scrollToTop();
 
@@ -152,11 +186,12 @@ use:enhance={() =>{
                 <button formaction="?/deleteSchedule" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                     Delete
                 </button>
-                <input type="hidden" name="contractid" value={schedule.contractid} />
-                <input type="hidden" name="scheduleid" value={schedule.id} />
+                <input type="hidden" name="contractid" value={schedule.item.contractid} />
+                <input type="hidden" name="scheduleid" value={schedule.item.id} />
             </form>
         </div>
         {/if}
+    {/each}
     {/each}
 {/if}
 

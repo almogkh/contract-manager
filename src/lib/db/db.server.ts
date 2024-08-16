@@ -5,7 +5,7 @@ import Pg from "pg";
 import * as schema from "./schema";
 import { shortages, items, itemsInApartment, apartmentInScheduleItem, apartments, users,
     sessions, type Shortage, type ShortageStatus,type ApartmentStatus, type ContractStatus, type SafeUser, type Item, type User, type Apartment, type ScheduleItem,
-    type NewItem, teams, scheduleItems, contracts } from "./schema";
+    type NewItem, type Contract, teams, scheduleItems, contracts } from "./schema";
 import { and, eq, getTableColumns, lt, ne, sql, asc, or } from "drizzle-orm";
 import { NODE_DB, POSTGRES_URL } from "$env/static/private";
 
@@ -83,7 +83,7 @@ export async function deleteTeam(id: number) {
 export async function getTeamSchedule(teamid: number) {
     const rows = await db.select().from(scheduleItems).where(eq(scheduleItems.teamid, teamid))
                     .orderBy(asc(scheduleItems.date))
-                    //.innerJoin(apartmentInScheduleItem, eq(apartmentInScheduleItem.itemid, scheduleItems.id))
+                    .innerJoin(apartmentInScheduleItem, eq(apartmentInScheduleItem.itemid, scheduleItems.id))
                     .innerJoin(apartments, and(
                             eq(apartments.status, 'pending'),
                             eq(apartments.contractid, apartmentInScheduleItem.contractid),
@@ -122,24 +122,22 @@ export async function getTeamSchedule(teamid: number) {
     return Object.values(result);
 }
 
+export async function getAllTeamSchedules() {
+    const ids = (await db.select({id: teams.id}).from(teams)).map(val => val.id);
+    const items: Record<number, Awaited<ReturnType<typeof getTeamSchedule>>> = {};
+    for (const id of ids) {
+        items[id] = await getTeamSchedule(id);
+    }
+
+    return Object.values(items);
+}
+
 export async function markApartmentComplete(contractid: number, floor: number, number: number) {
     await db.update(apartments).set({status: 'complete'}).where(and(
         eq(apartments.contractid, contractid),
         eq(apartments.floor, floor),
         eq(apartments.number, number)
     ));
-}
-export async function getApartmentsListByStatus(status: ApartmentStatus){
-    const apartmentsList = await db
-    .select({
-        contractid: apartments.contractid,
-        floor: apartments.floor,
-        number: apartments.number,
-        status: apartments.status
-    })
-    .from(apartments).where(eq(apartments.status, status))
-
-    return apartmentsList;
 }
 
 export async function getApartmentsList(){
@@ -161,7 +159,20 @@ export async function getApartmentsListById(id: number){
 }
 
 export async function getContractsByStatus(status: ContractStatus){
-    return await db.select().from(contracts).where(eq(contracts.status, status));
+    const rows = await db.select().from(contracts).where(eq(contracts.status, status))
+                    .innerJoin(apartments, eq(apartments.contractid, contracts.id))
+                    .orderBy(asc(apartments.floor), asc(apartments.number));
+    
+    const result: Record<number, Contract & {apartments: Apartment[]}> = {};
+    for (const row of rows) {
+        if (!result[row.contracts.id]) {
+            result[row.contracts.id] = {...row.contracts, apartments: []};
+        }
+
+        result[row.contracts.id].apartments.push(row.apartments);
+    }
+
+    return result;
 }
 
 export async function getActiveContracts() {
@@ -179,8 +190,12 @@ export async function getContractsList(){
     return await db.select().from(contracts);
 }
 
-export async function addScheduleItem(scheduleItem: typeof scheduleItems.$inferInsert) {
-    return await db.insert(scheduleItems).values(scheduleItem).returning();
+export async function addScheduleItem(scheduleItem: typeof scheduleItems.$inferInsert & {apartments: {floor: number, number: number}[]}) {
+    const {apartments, ...schedItem} = scheduleItem;
+    const item = (await db.insert(scheduleItems).values(schedItem).returning())[0];
+    for (const apartment of apartments) {
+        await db.insert(apartmentInScheduleItem).values({contractid: scheduleItem.contractid, itemid: item.id, floor: apartment.floor, number: apartment.number});
+    }
 }
 
 export async function getScheduleItem() {
@@ -188,6 +203,7 @@ export async function getScheduleItem() {
 }
 
 export async function deleteScheduleItem(id: number){
+    await db.delete(apartmentInScheduleItem).where(eq(apartmentInScheduleItem.itemid, id));
     await db.delete(scheduleItems).where(eq(scheduleItems.id,id));
 }
 
@@ -219,8 +235,23 @@ export async function updateShortage(id: number, status: ShortageStatus) {
     await db.update(shortages).set({status}).where(eq(shortages.id, id));
 }
 
-export async function updateSchedule(scheduleItem: typeof scheduleItems.$inferInsert, id: number) {
-    await db.update(scheduleItems).set(scheduleItem).where(eq(scheduleItems.id, id));
+export async function updateSchedule(scheduleItem: typeof scheduleItems.$inferInsert & {apartments: {floor: number, number: number}[]}, id: number) {
+    const {apartments, ...item} = scheduleItem;
+    await db.update(scheduleItems).set(item).where(eq(scheduleItems.id, id));
+
+    const schedAparts = await db.select().from(apartmentInScheduleItem).where(eq(apartmentInScheduleItem.itemid, id));
+    const toAdd = apartments.filter(val => !schedAparts.find(v => v.floor === val.floor && v.number === val.number))
+                        .map(val => {return {...val, contractid: item.contractid, itemid: id}});
+    const toRemove = schedAparts.filter(val => !apartments.find(v => v.floor === val.floor && v.number === val.number));
+
+    await db.insert(apartmentInScheduleItem).values(toAdd);
+    for (const row of toRemove) {
+        await db.delete(apartmentInScheduleItem).where(and(
+                                                        eq(apartmentInScheduleItem.itemid, id),
+                                                        eq(apartmentInScheduleItem.contractid, row.contractid),
+                                                        eq(apartmentInScheduleItem.floor, row.floor),
+                                                        eq(apartmentInScheduleItem.number, row.number)));
+    }
 }
 
 export async function getItemsData(){
