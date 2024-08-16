@@ -21,7 +21,7 @@
         </form>
     </header>
 
-    {#if $page.url.pathname !== '/'}
+    {#if $page.url.pathname !== '/' && $page.url.pathname !== '/login'}
         <a class="border p-2 bg-slate-400 text-center self-start ml-6 mb-6 min-w-32 flex space-x-4 justify-center"
             href={returnPath($page.url.pathname)}
         >
