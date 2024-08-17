@@ -38,6 +38,26 @@ export async function addContract(newContract: typeof contracts.$inferInsert){
 
 export async function addApartment(newApartment: typeof apartments.$inferInsert){
     await db.insert(apartments).values(newApartment);
+    if (newApartment.doorHeight) {
+        const door = (await getItemByNWH('Door', newApartment.doorWidth!, newApartment.doorHeight))!;
+        await db.insert(itemsInApartment).values({
+                                            number: newApartment.number,
+                                            contractid: newApartment.contractid,
+                                            floor: newApartment.floor,
+                                            itemid: door.id,
+                                            quantity: 1,
+                                        });
+    }
+    if (newApartment.windowHeight) {
+        const window = (await getItemByNWH('Window', newApartment.windowWidth!, newApartment.windowHeight))!;
+        await db.insert(itemsInApartment).values({
+                                            number: newApartment.number,
+                                            contractid: newApartment.contractid,
+                                            floor: newApartment.floor,
+                                            itemid: window.id,
+                                            quantity: 1,
+                                        });
+    }
 }
 
 export async function deleteUser(userid: number) {
