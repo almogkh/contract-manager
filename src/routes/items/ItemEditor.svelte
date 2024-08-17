@@ -35,16 +35,16 @@
         }
     };
 }}>
-    <div class="grid grid-cols-3 gap-x-2 w-full">
+    <div class="flex w-full space-x-2">
         {#if shortages}
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6 fill-yellow-600 justify-self-start">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6 fill-yellow-600">
                 <title>This item has shortages</title>
                 <path fill-rule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clip-rule="evenodd" />
             </svg>
         {:else}
-            <span/>
+            <span class="min-w-5"/>
         {/if}
-        <input type="text" class="justify-self-center" readonly={!editing} name="name" required bind:value={name}/>
+        <input type="text" class="min-w-0" readonly={!editing} name="name" required bind:value={name}/>
         <input type="hidden" name="id" value={item?.id ?? ''}/>
     </div>
     <input type="text" readonly={!editing} name="quantity" required bind:value={quantity}/>
