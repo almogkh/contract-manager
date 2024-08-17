@@ -2,7 +2,7 @@ import { db } from '$lib/db/db.server.js';
 import { sessions, users } from '$lib/db/schema.js';
 import { computeHash } from '$lib/server/utils.js';
 import { fail, redirect } from '@sveltejs/kit';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, gt, sql } from 'drizzle-orm';
 
 export const actions = {
     login: async (event) => {
@@ -45,6 +45,10 @@ export const actions = {
         event.cookies.set('sessionid', session.sessionid, {path: '/'});
         const {password: _, ...userClean} = user;
         event.locals.user = userClean;
+
+        // Garbage-collect any expired sessions in the DB
+        await db.delete(sessions).where(gt(sessions.expirationTime, sql`now()`));
+
         redirect(303, '/');
     },
 
