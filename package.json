@@ -3,7 +3,7 @@
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
-		"dev": "vite dev",
+		"dev": "dotenv -e .env.development.local -- vite dev",
 		"build": "vite build",
 		"preview": "vite preview",
 		"test": "npm run test:integration && npm run test:unit",
@@ -14,8 +14,9 @@
 		"test:integration": "playwright test",
 		"test:unit": "vitest",
 		"generate": "dotenv -e .env.development.local -- drizzle-kit generate",
-    	"migrate": "dotenv -e .env.development.local -- drizzle-kit migrate",
-    	"studio": "dotenv -e .env.development.local -- drizzle-kit studio"
+		"migrate": "dotenv -e .env.development.local -- drizzle-kit migrate",
+		"studio": "dotenv -e .env.development.local -- drizzle-kit studio",
+		"push": "dotenv -e .env.development.local -- drizzle-kit push"
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.28.1",
@@ -23,6 +24,7 @@
 		"@sveltejs/kit": "^2.0.0",
 		"@sveltejs/vite-plugin-svelte": "^3.0.0",
 		"@types/eslint": "^8.56.7",
+		"@types/pg": "^8.11.6",
 		"autoprefixer": "^10.4.19",
 		"drizzle-kit": "^0.22.7",
 		"eslint": "^9.0.0",
@@ -44,6 +46,7 @@
 	"type": "module",
 	"dependencies": {
 		"@vercel/postgres": "^0.8.0",
-		"drizzle-orm": "^0.31.2"
+		"drizzle-orm": "^0.31.2",
+		"pg": "^8.12.0"
 	}
 }
