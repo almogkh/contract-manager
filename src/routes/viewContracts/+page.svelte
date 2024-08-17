@@ -13,7 +13,9 @@
 
     let filteredContracts = data.contracts;
 
-    const options = ['ID', 'Address', 'Signing Date', 'Due Date', 'Price', 'Status', 'Type'];
+    let showDueDates = -1;
+
+    const options = ['ID', 'Address', 'Signing Date', 'Due Date', 'Price', 'Status', 'Type', 'Floor Due Dates'];
 
     function filterListBy() {
         filteredContracts = data.contracts.filter(contract => {
@@ -35,8 +37,9 @@
     };
     }
     
-    function getContractValues(contract: any) {
-        return Object.values(contract);
+    function getContractValues(contract: typeof data.contracts[number]) {
+        const {floorDueDates, ...rest} = contract;
+        return Object.values(rest);
     }
 </script>
 
@@ -100,13 +103,45 @@
             </tr>
         </thead>
         <tbody>
-            {#each filteredContracts as contract}
+            {#each filteredContracts as contract, idx}
             <tr>
                 {#each getContractValues(contract) as value}
                 <td class="py-2 px-4 border-b">{value}</td>
                 {/each}
+                <td class="py-2 px-4 border-b">
+                    <button type="button" on:click={() => showDueDates = idx} class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                        Show Due Dates
+                    </button>
+                </td>
             </tr>
             {/each}
         </tbody>
     </table>
 </div>
+
+{#if showDueDates !== -1}
+<div class="fixed inset-0 z-50 overflow-auto bg-black bg-opacity-40">
+  <div class="bg-white p-8 rounded shadow-md max-w-md mx-auto mt-20">
+    {#each filteredContracts[showDueDates].floorDueDates as floorDueDate}
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2">
+          Floor:
+          <input type="number" readonly bind:value={floorDueDate.floor} required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </label>
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2">
+          Due date:
+          <input type="date" readonly bind:value={floorDueDate.date} required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </label>
+      </div>
+    {/each}
+    <button type="button" on:click={() => {
+        showDueDates = -1;
+      }}
+      class="block mb-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+      Done
+    </button>
+  </div>
+</div>
+{/if}

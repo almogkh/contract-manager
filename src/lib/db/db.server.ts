@@ -328,3 +328,7 @@ export async function deleteItem(id: number) {
 export async function addFloorDueDates(dates: DueDate[]) {
     await db.insert(dueDates).values(dates);
 }
+
+export async function getFloorDueDates() {
+    return await db.select().from(dueDates);
+}
