@@ -150,3 +150,18 @@ export const shortages = pgTable('shortages', {
 export type Shortage = typeof shortages.$inferSelect;
 
 export type ItemProp = Awaited<ReturnType<typeof getItems>>[number];
+
+export const dueDates = pgTable('dueDates', {
+    contractid: integer('contractid').notNull().references(() => contracts.id),
+    floor: integer('floor').notNull(),
+    date: date('date').notNull(),
+}, (table) => {
+    return {
+        pk: primaryKey({
+            name: 'duedates_pk',
+            columns: [table.contractid, table.floor],
+        }),
+    };
+});
+
+export type DueDate = typeof dueDates.$inferSelect;

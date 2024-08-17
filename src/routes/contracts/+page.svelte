@@ -26,6 +26,11 @@
     aptStatus: string;
   }
 
+  type DueDates = {
+    floor: number,
+    dueDate: string,
+  }
+
   let newApartment: Apartment = {
     floor: '',
     number: '',
@@ -35,9 +40,11 @@
   };
 
   let apartments: Apartment[] = [];
+  let floorDueDates: DueDates[] = [];
   let contractStatusValues = ['New', 'In Progress', 'Complete'];
   let showAddApartment = false;
   let showEditApartment = false;
+  let showDueDates = false;
   let ApartmentToEditIndex: number = 0;
 
   let selectedItem: string | null = null;
@@ -45,6 +52,8 @@
 
   let hasDoor = false;
   let hasWindow = false;
+
+  let floorForm: HTMLFormElement;
 
   $: canSubmit = apartments.length > 0;
 
@@ -165,6 +174,7 @@
           Due Date: <span style="color:red;">*</span>
           <input name="dueDate" type="date" bind:value={dueDate} required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
       </label>
+      <button type="button" on:click={() => showDueDates = true} class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Edit floor due dates</button>
   </div>
 
   <!-- Contract Type Select -->
@@ -222,7 +232,47 @@
 
   <!-- Hidden Input to Store Apartments -->
   <input type="hidden" name="apartments" value={JSON.stringify(apartments)} />
+  {#each floorDueDates as dueDate}
+    <input type="hidden" name="dueDateFloor" value={dueDate.floor} />
+    <input type="hidden" name="dueDateDate" value={dueDate.dueDate} />
+  {/each}
 </form>
+
+{#if showDueDates}
+<div class="fixed inset-0 z-50 overflow-auto bg-black bg-opacity-40">
+  <div class="bg-white p-8 rounded shadow-md max-w-md mx-auto mt-20">
+    <form bind:this={floorForm}>
+    {#each floorDueDates as _, idx}
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2">
+          Floor: <span style="color:red;">*</span>
+          <input type="number" bind:value={floorDueDates[idx].floor} required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </label>
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2">
+          Due date: <span style="color:red;">*</span>
+          <input type="date" bind:value={floorDueDates[idx].dueDate} required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </label>
+      </div>
+      <div class="mb-4">
+        <button type="button" on:click={() => floorDueDates = floorDueDates.toSpliced(idx, 1)} class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+          Remove floor
+        </button>
+      </div>
+    {/each}
+    </form>
+    <button type="button" on:click={() => {floorDueDates.push({floor: NaN, dueDate: ''}); floorDueDates = floorDueDates;}} class="block mb-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Add floor</button>
+    <button type="button" on:click={() => {
+        if (floorForm.reportValidity())
+          showDueDates = false;
+      }}
+      class="block mb-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+      Done
+    </button>
+  </div>
+</div>
+{/if}
 
 <!-- Add Apartment Modal -->
 {#if showAddApartment}

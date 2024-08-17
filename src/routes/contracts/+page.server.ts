@@ -1,5 +1,5 @@
-import { getItemsData, addContract, addApartment } from '$lib/db/db.server.js';
-import { type ContractStatus, type ContractType, apartmentStatus } from '$lib/db/schema.js';
+import { getItemsData, addContract, addApartment, addFloorDueDates } from '$lib/db/db.server.js';
+import { type ContractStatus, type ContractType, type DueDate, apartmentStatus } from '$lib/db/schema.js';
 import { fail } from '@sveltejs/kit';
 
 export async function load(event) {
@@ -16,7 +16,8 @@ export const actions = {
         const dueDate = formData.get('dueDate') as string;
         const type = formData.get('contractType') as ContractType;
         const status = formData.get('contractStatus') as ContractStatus;
-
+        const floors = (formData.getAll("dueDateFloor") as string[]).map(val => parseInt(val));
+        const floorDueDates = formData.getAll("dueDateDate") as string[];
         // Extract apartments data
         const apartmentDataStr = formData.get('apartments') as string;
         
@@ -94,6 +95,12 @@ export const actions = {
 
                 await addApartment(aptData);
             }
+
+            const dueDates: DueDate[] = [];
+            for (let i = 0; i < floors.length && i < floorDueDates.length; i++) {
+                dueDates.push({contractid, floor: floors[i], date: floorDueDates[i]});
+            }
+            await addFloorDueDates(dueDates);
 
             return { success: true };
         } catch (error) {

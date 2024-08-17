@@ -4,8 +4,8 @@ import { sql as vercelSql } from "@vercel/postgres";
 import Pg from "pg";
 import * as schema from "./schema";
 import { shortages, items, itemsInApartment, apartmentInScheduleItem, apartments, users,
-    sessions, type Shortage, type ShortageStatus,type ApartmentStatus, type ContractStatus, type SafeUser, type Item, type User, type Apartment, type ScheduleItem,
-    type NewItem, type Contract, teams, scheduleItems, contracts } from "./schema";
+    sessions, type Shortage, type ShortageStatus, type ContractStatus, type SafeUser, type Item, type User, type Apartment, type ScheduleItem,
+    type NewItem, type Contract, type DueDate, teams, scheduleItems, dueDates, contracts } from "./schema";
 import { and, eq, getTableColumns, lt, ne, sql, asc, or } from "drizzle-orm";
 import { NODE_DB, POSTGRES_URL } from "$env/static/private";
 
@@ -325,5 +325,6 @@ export async function deleteItem(id: number) {
     await db.delete(items).where(eq(items.id, id));
 }
 
-
-
+export async function addFloorDueDates(dates: DueDate[]) {
+    await db.insert(dueDates).values(dates);
+}
