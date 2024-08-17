@@ -3,6 +3,8 @@ import { pages } from '$lib/server/permissions';
 import { error, redirect } from '@sveltejs/kit';
 
 export async function handle({ event, resolve }) {
+    event.locals.user = null;
+
     if (event.url.pathname === '/login')
         return await resolve(event);
     
