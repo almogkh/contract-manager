@@ -35,7 +35,6 @@ export const actions: Actions = {
                     }
 
                     if (apt.doorWidth !== null && apt.doorHeight !== null) {
-                        console.log(apt.doorWidth);
                         const door = await getItemByNWH('Door', apt.doorWidth, apt.doorHeight);
                         if (door && door.quantity > 0) {
                             await updateItemQuantity(door.id);
