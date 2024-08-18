@@ -35,7 +35,6 @@ export const actions = {
         // We store SHA-256 hashes of passwords in the DB, not the passwords themselves
         const passHash = computeHash(password);
         if (user.password !== passHash) {
-            console.log(passHash, user.password);
             return fail(400, {incorrect: true, error});
         }
 
