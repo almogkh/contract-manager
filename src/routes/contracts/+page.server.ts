@@ -15,7 +15,6 @@ export const actions = {
         const price = parseFloat(formData.get('price') as string);
         const dueDate = formData.get('dueDate') as string;
         const type = formData.get('contractType') as ContractType;
-        const status = formData.get('contractStatus') as ContractStatus;
         const floors = (formData.getAll("dueDateFloor") as string[]).map(val => parseInt(val));
         const floorDueDates = formData.getAll("dueDateDate") as string[];
         // Extract apartments data
@@ -30,7 +29,6 @@ export const actions = {
             price,
             dueDate,
             type,
-            status
         ];
         // Validate contract data
         if (!data.every((value) => value !== null && value !== '')) 
@@ -52,7 +50,7 @@ export const actions = {
         
         try {
             // Insert a new contract and return the contract
-            const result = await addContract({address, signingDate, price, dueDate, type, status});
+            const result = await addContract({address, signingDate, price, dueDate, type});
 
             // Extract contract id
             const contractid = result[0].id;
