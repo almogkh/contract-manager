@@ -60,14 +60,21 @@ export const actions = {
         const formData = await event.request.formData();
         const userid = formData.get('id') as string;
 
-        if (!userid || userid === '')
+        if (!userid)
             return fail(400, {missing: true});
 
         const id = parseInt(userid);
-
-        await deleteUser(id);
-        return {
-            success: true,
-        };
+        try {
+            await deleteUser(id);
+            return {
+                success: true,
+            };
+        } catch (error: any) {
+            if (error.code === '23503') {
+                return fail(400, {
+                    errorMessage: 'Can\'t delete employee because they are still assigned to a team.\nPlease ensure that the employee is removed from all responsibility before trying to delete them.',
+                });
+            }
+        }
     },
 };

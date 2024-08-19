@@ -19,7 +19,7 @@ export type SafeUser = Omit<typeof users.$inferSelect, 'password'>;
 
 export const sessions = pgTable('sessions', {
     sessionid: uuid('sessionid').primaryKey().defaultRandom(),
-    userid: integer('userid').references(() => users.id),
+    userid: integer('userid').references(() => users.id, { onDelete: 'cascade' }),
     expirationTime: timestamp('expirationTime', {withTimezone: true}),
 });
 

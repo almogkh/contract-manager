@@ -1,5 +1,6 @@
 <script>
     import { enhance } from "$app/forms";
+	import { errorPopup } from "$lib/popups";
 
     export let employee;
     export let adding = false;
@@ -14,10 +15,15 @@
 </script>
 
 <form class="contents" method="post" on:submit={() => readonly = true} use:enhance={({action}) => {
-    return ({update}) => {
+    return ({update, result}) => {
         update({reset: false});
-        if (action.search === '?/addEmployee')
+        if (action.searchParams.has('/addEmployee')) {
             adding = false;
+        } else if (action.searchParams.has('/deleteEmployee')) {
+            if (result.type === 'failure' && result.data && typeof result.data.errorMessage === 'string') {
+                errorPopup(result.data.errorMessage);
+            }
+        }
     };
 }}>
     <input {readonly} required name="firstName" type="text" bind:value={firstName}/>
