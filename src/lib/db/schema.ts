@@ -44,8 +44,6 @@ export const teams = pgTable('teams', {
     id: serial('id').primaryKey(),
     name: text('name').notNull(),
     lead: integer('lead').notNull().references(() => users.id),
-    //*** One team can work on several contracts parallel. ***
-    //contract: integer('contract').references(() => contracts.id), 
     installers: text('installers').array().notNull().default(sql`'{}'`),
 });
 
