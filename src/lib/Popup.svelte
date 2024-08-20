@@ -5,7 +5,7 @@
     export let type: string;
 </script>
 
-<div class="w-screen h-screen absolute z-50 flex flex-col place-content-center items-center bg-black/30">
+<div class="w-screen h-screen overflow-hidden fixed z-50 flex flex-col place-content-center items-center bg-black/30">
     <div class="flex flex-col items-center gap-6 bg-white px-10 py-6 rounded-xl">
         {#if type === 'error'}
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-12 stroke-red-600 mb-[-1.5rem]">
