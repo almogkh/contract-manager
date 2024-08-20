@@ -1,6 +1,6 @@
 <script>
     import { enhance } from "$app/forms";
-	import { errorPopup } from "$lib/popups";
+	import { confirmationPopup, errorPopup } from "$lib/popups";
 
     export let employee;
     export let adding = false;
@@ -14,7 +14,15 @@
     let password = "";
 </script>
 
-<form class="contents" method="post" on:submit={() => readonly = true} use:enhance={({action}) => {
+<form class="contents" method="post" on:submit={() => readonly = true} use:enhance={async ({action, cancel}) => {
+    if (action.searchParams.has('/deleteEmployee')) {
+        const submit = await confirmationPopup('Are you sure you want to delete this employee?')
+        if (!submit) {
+            cancel();
+            return;
+        }
+    }
+
     return ({update, result}) => {
         update({reset: false});
         if (action.searchParams.has('/addEmployee')) {
