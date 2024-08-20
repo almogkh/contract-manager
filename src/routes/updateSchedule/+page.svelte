@@ -1,5 +1,6 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
+	import { confirmationPopup } from "$lib/popups.js";
 
     export let data;
     export let form;
@@ -163,7 +164,15 @@ use:enhance={() =>{
             </div>
             {/if}
 
-            <form method="post" action="?/updateSchedule" use:enhance>
+            <form method="post" action="?/updateSchedule" use:enhance={ async ({action, cancel}) => {
+                if (action.searchParams.has('/deleteSchedule')) {
+                   const submit = await confirmationPopup('Are you sure you want to delete this item?');
+                    if (!submit) {
+                        cancel();
+                        return;
+                    } 
+                }
+            }}>
                 <button type="button" on:click={() => {
                     scheduleid = schedule.item.id.toString();
                     teamId = schedule.item.teamid.toString();
