@@ -264,7 +264,9 @@ export async function updateSchedule(scheduleItem: typeof scheduleItems.$inferIn
                         .map(val => {return {...val, contractid: item.contractid, itemid: id}});
     const toRemove = schedAparts.filter(val => !apartments.find(v => v.floor === val.floor && v.number === val.number));
 
-    await db.insert(apartmentInScheduleItem).values(toAdd);
+    if (toAdd.length > 0)
+        await db.insert(apartmentInScheduleItem).values(toAdd);
+
     for (const row of toRemove) {
         await db.delete(apartmentInScheduleItem).where(and(
                                                         eq(apartmentInScheduleItem.itemid, id),
