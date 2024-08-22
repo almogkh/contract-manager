@@ -1,5 +1,6 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
+	import Help from "$lib/Help.svelte";
 
   export let data;
   export let form;
@@ -136,6 +137,25 @@
   }
 
 </script>
+
+<Help>
+Here is where you create new contracts.
+You must fill out all the fields in the form in order to proceed.
+
+There are two types of contracts:
+1. New construction: A new shelter is being constructed (usually for a new building).
+2. Repair contract: This is used to order repairs or other changes to a shelter after it was already constructed.
+
+You can assign a due date for the whole contract as well as a per-floor due date by clicking the blue button that says 'Edit floor due dates'.
+
+You also need to add apartments to the contract. You can add one apartment by clicking the 'Add Apartment' button. Then you can select the floor and apartment number.
+Finally, you need to add items to the apartment. This could be a door and/or a window of specified dimensions.
+
+Once you've added some apartments, you will be able to see the list of apartments in the contract at the bottom of the page.
+You can edit the apartments or delete all or one of the apartments.
+
+Finally, you click 'Create Contract' to create the contract.
+</Help>
 
 <h1 class="text-2xl mb-6">Create contract</h1>
 

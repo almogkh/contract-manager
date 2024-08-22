@@ -1,5 +1,6 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
+	import Help from "$lib/Help.svelte";
 	import { confirmationPopup } from "$lib/popups.js";
 
     export let data;
@@ -36,6 +37,19 @@
         isEdit = false;
     }
 </script>
+
+<Help>
+Here you can edit a team's schedule.
+
+First select a team from the dropdown menu and click 'Get Schedule'.
+
+Then you can fill out the form to add a new schedule item to the selected team's schedule.
+After selecting the contract ID, you will be able to see the list of apartments awaiting completion in
+the apartments dropdown menu below.
+
+You can also see the existing active schedule items that the team has. You can edit these items by
+clicking 'Edit' or you can delete the item by clicking 'Delete'.
+</Help>
 
 <style>
     /* Break line in description*/

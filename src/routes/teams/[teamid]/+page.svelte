@@ -1,5 +1,6 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
+	import Help from "$lib/Help.svelte";
 	import { confirmationPopup, popup } from "$lib/popups";
 
     export let data;
@@ -8,6 +9,22 @@
     let installers = data.team.installers;
     let disableButtons = false;
 </script>
+
+<Help>
+Here you can edit your team, view your team's schedule and mark scheduled tasks as complete.
+
+You can change the team's name, or change the list of installers that are members of this team.
+Clicking the red X will delete the installer from the list. You can click on 'Add installer' to add a new
+installer to the list. For each installer you can specify their name.
+
+Once you've finished editing the team, you can click on 'Update team'.
+
+You can delete the team by clicking on 'Delete team'. If the team has work assigned to it, you will need to move the work
+to a different team or to finish the job before you can delete the team.
+
+At the bottom of the page you can view your team's schedule.
+For each schedule item, you can click on 'View apartments' to see the apartments that your team needs to take care of.
+</Help>
 
 <span class="text-red-600 text-wrap w-4/6 mb-2 min-h-12">{form?.errorMessage ?? ''}</span>
 
@@ -55,7 +72,7 @@
         }} disabled={disableButtons}>Add installer</button>
         <button class="border border-black bg-slate-500 text-white p-1" formaction="?/editTeam" disabled={disableButtons}>Update team</button>
         <button class="border border-black rounded-md bg-red-600 text-white p-1" formaction="?/deleteTeam" formnovalidate disabled={disableButtons}>
-            Delete
+            Delete team
         </button>
     </form>
     <h1 class="text-lg border-t border-black w-full underline">Team Schedule:</h1>

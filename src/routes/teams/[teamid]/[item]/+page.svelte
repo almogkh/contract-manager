@@ -1,10 +1,17 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
     import { page } from "$app/stores";
+	import Help from "$lib/Help.svelte";
 
     export let data;
     let schedItem = data.schedule.find((item) => item.item.id === parseInt($page.params.item))!;
 </script>
+
+<Help>
+Here you can see which apartments you need to take care of in this schedule item, and what items you need to bring.
+
+Once you finish handling an apartment, you can click on 'Mark as complete'.
+</Help>
 
 {#each schedItem.apartments as apartment}
 <div class="border border-black p-2 flex flex-col gap-y-4 w-full">

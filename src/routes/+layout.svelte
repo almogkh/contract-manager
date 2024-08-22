@@ -2,7 +2,7 @@
     import { enhance } from "$app/forms";
     import { page } from "$app/stores";
     import Popup from "$lib/Popup.svelte";
-    import { displayPopup } from "$lib/popups";
+    import { displayPopup, helpPopup, helpText } from "$lib/popups";
     import "../app.css";
 
     export let data;
@@ -15,7 +15,11 @@
 </script>
 
 <div class="bg-slate-300 min-h-screen flex flex-col items-center pb-8">
-    <header class="flex justify-end w-full p-2 border-b mb-4">
+    <header class="flex justify-between w-full p-2 border-b mb-4">
+        <button class="rounded-full bg-blue-800 text-yellow-600 text-lg size-8 ml-2 {!$helpText ? 'invisible' : ''}" title="Help"
+            on:click={() => helpPopup($helpText)}>
+            <b>?</b>
+        </button>
         <form method="post" action="/login?/logout" use:enhance>
             <button class="{data.user ? "" : "invisible"} p-1 mr-2 border rounded-md bg-red-600 text-white">Logout</button>
         </form>

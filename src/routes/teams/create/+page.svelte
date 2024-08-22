@@ -1,9 +1,19 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
+	import Help from "$lib/Help.svelte";
 
     let installers: string[] = [];
 </script>
 
+<Help>
+On this page you can create a new team that you lead.
+
+Select a name for the team and then click on 'Add installer' to add the names
+of the installers that will be in this team.
+Clicking on the red X next to an installer will remove him from the list.
+
+Finally, you can click on 'Create team' to create the team.
+</Help>
 
 <form method="post" action="?/createTeam" class="flex flex-col gap-y-4 w-screen items-center" use:enhance>
     <div class="grid grid-cols-2 gap-y-4">

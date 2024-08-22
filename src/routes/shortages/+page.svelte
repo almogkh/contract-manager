@@ -1,8 +1,19 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
+	import Help from "$lib/Help.svelte";
 
     export let data;
 </script>
+
+<Help>
+On this page you can manage item shortages that are needed for contracts.
+
+This page will list the current shortages, the amount missing, the item's price and the contract's due date.
+You should ensure the items are ordered and that they arrive before the due date.
+
+Once you've ordered an item, you can mark it as ordered by clicking 'Mark as ordered'.
+When the item arrives, you can mark the shortage as complete by clicking 'Mark as complete'.
+</Help>
 
 <div class="grid grid-cols-7 gap-2">
     <span>Name</span>

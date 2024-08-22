@@ -1,5 +1,6 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
+	import Help from "$lib/Help.svelte";
 
     export let data;
 
@@ -42,6 +43,15 @@
         return Object.values(rest);
     }
 </script>
+
+<Help>
+Here you can view all the contracts in the system, both completed ones and not completed ones.
+
+You can use the form at the top to filter the list of contracts to your liking.
+
+At the bottom you can see the table of filtered contracts. The 'View due dates' button allows you to
+see the due dates of individual floors in the contract.
+</Help>
 
 <form method="post" action="?/filterList" use:enhance>
     <div class="filters p-4 mb-4">

@@ -1,5 +1,7 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
+	import Help from "$lib/Help.svelte";
+	import { confirmationPopup } from "$lib/popups";
 
     export let data;
 
@@ -23,6 +25,13 @@
 
 </script>
 
+<Help>
+Here you can change the status of a contract.
+Simply click the 'Mark as &lbrace;status&rbrace;' to change the contract status to 'status'.
+
+You can see details about a contract from the 'View contracts' menu.
+</Help>
+
 <div class="text-2xl grid grid-cols-4 gap-4 p-8">
     <span class="border-b-2 border-black pb-2 col-span-1 font-bold">Contract ID</span>
     <span class="border-b-2 border-black pb-2 col-span-1 font-bold">Current Status</span>
@@ -32,7 +41,13 @@
 
 <div class="text-xl grid grid-cols-3 gap-4">
 {#each sortedContracts as contract, index}
-<form method="post" action="?/updateContractStatus" use:enhance class="contents">
+<form method="post" action="?/updateContractStatus" class="contents" use:enhance={async ({cancel}) => {
+    const submit = await confirmationPopup('Are you sure you want to change the contract status?');
+    if (!submit) {
+        cancel();
+        return;
+    }
+}}>
     <div class="col-span-3 grid grid-cols-3 gap-4 border-gray-500 py-2">
         <span>{contract.id}</span>
         <span>{contract.status === 'new' ? 'New' : 'In Progress'}</span>
