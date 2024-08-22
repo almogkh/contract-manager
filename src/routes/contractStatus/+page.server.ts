@@ -22,6 +22,7 @@ export const actions: Actions = {
         try {
             await updateContractStatus(id, status);
             
+            // Only deduct from inventory once contract has been signed and is in progress
             if (status === 'inprogress') {
                 const apartmentsInContract = await getApartmentsListById(id);
                 for (const apt of apartmentsInContract) {
