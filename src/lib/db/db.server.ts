@@ -4,13 +4,15 @@ import { sql as vercelSql } from "@vercel/postgres";
 import Pg from "pg";
 import * as schema from "./schema";
 import { shortages, items, itemsInApartment, apartmentInScheduleItem, apartments, users,
-    sessions, type Shortage, type ShortageStatus, type ContractStatus, type SafeUser, type Item, type User, type Apartment, type ScheduleItem,
-    type NewItem, type Contract, type DueDate, teams, scheduleItems, dueDates, contracts } from "./schema";
+    sessions, type Shortage, type ShortageStatus, type ContractStatus, type SafeUser, type Item,
+    type User, type Apartment, type ScheduleItem, type NewItem, type Contract, type DueDate, teams,
+    scheduleItems, dueDates, contracts } from "./schema";
 import { and, eq, getTableColumns, lt, ne, sql, asc, or } from "drizzle-orm";
 import { NODE_DB, POSTGRES_URL } from "$env/static/private";
 
 const { Pool } = Pg;
 
+// drizzleNode is used for local development
 export const db = NODE_DB
                     ? drizzleNode(new Pool({connectionString: POSTGRES_URL}))
                     : drizzleVercel(vercelSql, {schema});
@@ -140,6 +142,28 @@ export async function getTeamSchedule(teamid: number) {
     }, {});
 
     return Object.values(result);
+}
+
+export async function collectScheduleItems(teamid: number) {
+    const sched = await db.select().from(scheduleItems).where(eq(scheduleItems.teamid, teamid))
+                            .innerJoin(apartmentInScheduleItem, eq(apartmentInScheduleItem.itemid, scheduleItems.id))
+                            .innerJoin(apartments, and(
+                                eq(apartments.contractid, apartmentInScheduleItem.contractid),
+                                eq(apartments.floor, apartmentInScheduleItem.floor),
+                                eq(apartments.number, apartmentInScheduleItem.number)
+                            ));
+    const res: Record<number, ScheduleItem & {apartments: Apartment[]}> = {};
+    for (const row of sched) {
+        if (!res[row.scheduleItems.id])
+            res[row.scheduleItems.id] = {...row.scheduleItems, apartments: []};
+
+        res[row.scheduleItems.id].apartments.push(row.apartments);
+    }
+
+    for (const item of Object.values(res)) {
+        if (item.apartments.every(apt => apt.status === 'complete'))
+            await db.delete(scheduleItems).where(eq(scheduleItems.id, item.id));
+    }
 }
 
 export async function getAllTeamSchedules() {

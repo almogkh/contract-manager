@@ -85,7 +85,7 @@ export const apartmentInScheduleItem = pgTable('apartmentInScheduleItem', {
     contractid: integer('contractid').notNull(),
     floor: integer('floor').notNull(),
     number: integer('number').notNull(),
-    itemid: integer('itemid').notNull().references(() => scheduleItems.id),
+    itemid: integer('itemid').notNull().references(() => scheduleItems.id, {onDelete: 'cascade'}),
 }, (table) => {
     return {
         ap_fk: foreignKey({
