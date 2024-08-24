@@ -1,10 +1,13 @@
 <script lang="ts">
+  // Import the enhance function for progressive enhancement of forms in SvelteKit.
   import { enhance } from "$app/forms";
 	import Help from "$lib/Help.svelte";
 
+  // Export props received from parent component or page.
   export let data;
   export let form;
 
+  // Define variables to hold form input values and component states.
   let address = '';
   let signingDate = '';
   let price = '';
@@ -12,6 +15,7 @@
   let contractType = 'newContract';
   let contractStatus = 'pending';
 
+  // Define types for items, apartments, and due dates.
   type ItemsInApt = {
     id: string;
     name: string;
@@ -32,6 +36,7 @@
     dueDate: string,
   }
 
+  // Define state variables for a new apartment, apartments array, and floor due dates array.
   let newApartment: Apartment = {
     floor: '',
     number: '',
@@ -42,21 +47,31 @@
 
   let apartments: Apartment[] = [];
   let floorDueDates: DueDates[] = [];
+
+  // State variables to control the visibility of modals and editing states.
   let showAddApartment = false;
   let showEditApartment = false;
   let showDueDates = false;
   let ApartmentToEditIndex: number = 0;
 
+  // Variables for item selection and addition status.
   let selectedItem: string | null = null;
   let additionStatus: string | null = null;
 
+  // Flags for checking the presence of door and window items in an apartment.
   let hasDoor = false;
   let hasWindow = false;
 
+  // Form reference for floor due dates.
   let floorForm: HTMLFormElement;
 
+  // Reactive statement to control the submission button state based on the apartments array.
   $: canSubmit = apartments.length > 0;
 
+  /**
+   * Adds or edits an apartment in the apartments array.
+   * @param index - Index of the apartment to edit; -1 if adding a new apartment.
+   */
   const addApartment = (index: number) => {
       if (!newApartment.floor || !newApartment.number || !newApartment.aptStatus || !newApartment.aptItems.length) {
           alert('Please fill in all required fields');
@@ -69,6 +84,7 @@
           apartments = [...apartments, { ...newApartment }];
       }
 
+      // Reset newApartment and related states after adding or editing.
       newApartment = {
           floor: '',
           number: '',
@@ -80,26 +96,39 @@
       hasDoor = false;
       hasWindow = false;
 
+      // Close the appropriate modal.
       if (index !== -1)
           showEditApartment = false;
       else 
           showAddApartment = false;
   };
 
+  /**
+   * Removes an apartment from the apartments array.
+   * @param index - Index of the apartment to remove.
+   */
   const removeApartment = (index: number) => {
       apartments = apartments.filter((_, i) => i !== index);
   };
 
+  /**
+   * Edits an existing apartment by setting it as the current newApartment.
+   * @param index - Index of the apartment to edit.
+   */
   function editApartment(index: number) {
       ApartmentToEditIndex = index;
       newApartment = { ...apartments[index] };
       showEditApartment = true;
 
-      // Set flags for existing items
+      // Set flags for existing items in the apartment.
       hasDoor = newApartment.aptItems.some(item => item.name.toLowerCase() === "door");
       hasWindow = newApartment.aptItems.some(item => item.name.toLowerCase() === "window");
   }
 
+  /**
+   * Removes an item from the newApartment's items list.
+   * @param itemId - ID of the item to remove.
+   */
   function removeItemFromApartment(itemId: string) {
     const item = newApartment.aptItems.find(item => item.id === itemId);
     if (item) {
@@ -109,6 +138,9 @@
     newApartment.aptItems = newApartment.aptItems.filter(item => item.id !== itemId);
   }
 
+  /**
+   * Adds an item to the newApartment's items list.
+   */
   function addItem() {
     const selectedItemData = data.items.find(item => item.id.toString() === selectedItem);
     if (selectedItemData && selectedItemData.height != null && selectedItemData.width != null) {
@@ -135,7 +167,6 @@
       additionStatus = "Failed to add item to the apartment.";
     }
   }
-
 </script>
 
 <Help>
