@@ -1,5 +1,5 @@
 import { getItemsData, addContract, addApartment, addFloorDueDates } from '$lib/db/db.server.js';
-import { type ContractStatus, type ContractType, type DueDate, apartmentStatus } from '$lib/db/schema.js';
+import { type ContractType, type DueDate, apartmentStatus } from '$lib/db/schema.js';
 import { fail } from '@sveltejs/kit';
 
 /**
