@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { apartments, itemsInApartment, scheduleItems } from '$lib/db/schema';
 import { currentApartmentsInSchedItem, newApartmentsInSchedItem, teamSchedule, teamScheduleResult, toCollectItems } from './testdata';
-import { handle } from './hooks.server';
+import { handle } from '../src/hooks.server';
+import { actions as contractActions } from '../src/routes/contracts/+page.server';
 
 const { insert, values, select, from, where, innerJoin, orderBy, eq, deleteFn, and, update, set } = vi.hoisted(() => {
     const insert = vi.fn();
@@ -114,17 +115,22 @@ describe('DB tests', async () => {
     });
 });
 
-const { getUserSession, error, redirect, resolve } = vi.hoisted(() => {
+const { getUserSession, error, redirect, resolve, fail, getItemsData, addContract, addApartment, addFloorDueDates } = vi.hoisted(() => {
     const getUserSession = vi.fn();
     const error = vi.fn();
     const redirect = vi.fn();
     const resolve = vi.fn();
+    const fail = vi.fn();
+    const getItemsData = vi.fn();
+    const addContract = vi.fn();
+    const addApartment = vi.fn();
+    const addFloorDueDates = vi.fn();
 
-    return { getUserSession, error, redirect, resolve };
+    return { getUserSession, error, redirect, resolve, fail, getItemsData, addContract, addApartment, addFloorDueDates };
 });
 
 vi.mock('$lib/db/db.server', () => {
-    return { getUserSession };
+    return { getUserSession, getItemsData, addContract, addApartment, addFloorDueDates };
 });
 
 vi.mock('@sveltejs/kit', () => {
@@ -136,7 +142,7 @@ vi.mock('@sveltejs/kit', () => {
         throw new Error();
     });
 
-    return { error, redirect };
+    return { error, redirect, fail };
 });
 
 describe('Main server \'handle\' hook', () => {
@@ -199,5 +205,57 @@ describe('Main server \'handle\' hook', () => {
 
         expect(error).toBeCalledTimes(1);
         expect(error).toBeCalledWith(403);
+    });
+});
+
+describe('Contract functions', () => {
+    afterEach(() => {
+        vi.clearAllMocks();
+    });
+
+    const formDataFn = vi.fn();
+
+    it('create contract', async () => {
+        const formData = {
+            get(key: string) {
+                switch (key) {
+                    case 'address':
+                    case 'signingDate':
+                    case 'dueDate':
+                        return 'string';
+                    case 'price':
+                        return '30.99';
+                    case 'contractType':
+                        return 'newContract';
+                    case 'apartments':
+                        const data = [
+                            { aptStatus: 'pending', floor: 1, number: 1, aptItems: [] },
+                            { aptStatus: 'pending', floor: 1, number: 2, aptItems: [] },
+                            { aptStatus: 'pending', floor: 1, number: 3, aptItems: [] },
+                        ];
+                        return JSON.stringify(data);
+                    default:
+                        throw new Error('invalid form data key ' + key);
+                }
+            },
+            getAll(key: string) {
+                switch (key) {
+                    case 'dueDateFloor':
+                        return ['1', '2', '3'];
+                    case 'dueDateDate':
+                        return ['date', 'date', 'date'];
+                    default:
+                        throw new Error('invalid form data key ' + key);
+                }
+            },
+        };
+        formDataFn.mockResolvedValue(formData);
+        addContract.mockResolvedValue([{ id: 1 }]);
+
+        await contractActions.createContract({ request: { formData: formDataFn } });
+
+        expect(addContract).toBeCalledTimes(1);
+        expect(addApartment).toBeCalledTimes(3);
+        expect(addFloorDueDates).toBeCalledTimes(1);
     });
 });
